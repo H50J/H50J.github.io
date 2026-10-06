@@ -127,7 +127,7 @@
     <!-- Main Content -->
     <div class="w-full flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6 items-center min-h-0 my-auto py-2">
       
-      <!-- LEFT PANE -->
+      <!-- LEFT PANE: Album Art & Track Info -->
       <section class="lg:col-span-7 w-full flex flex-col items-center justify-center my-auto">
         <div class="relative group my-auto">
           <div id="album-glow" class="absolute inset-0 rounded-3xl bg-emerald-500/20 blur-2xl transition-all duration-700"></div>
@@ -150,14 +150,16 @@
         </div>
       </section>
 
-      <!-- RIGHT PANE -->
-      <aside class="hidden lg:flex lg:col-span-5 h-full max-h-[460px] glass-panel rounded-3xl p-5 flex-col overflow-hidden">
-        <div class="flex items-center justify-between border-b border-white/10 pb-3 mb-3">
-          <h2 class="text-sm font-bold flex items-center gap-2"><i class="ph ph-queue text-emerald-400"></i> Up Next</h2>
-          <span class="text-[10px] text-white/50 uppercase tracking-wider font-semibold">Live Queue</span>
+      <!-- RIGHT PANE: Live Lyrics / Album Bio -->
+      <aside class="hidden lg:flex lg:col-span-5 h-full max-h-[460px] glass-panel rounded-3xl p-6 flex-col overflow-hidden">
+        <div class="flex items-center justify-between border-b border-white/10 pb-3 mb-4">
+          <h2 class="text-sm font-bold flex items-center gap-2"><i class="ph ph-text-align-left text-emerald-400"></i> Lyrics & Overview</h2>
+          <span id="album-type-badge" class="text-[10px] bg-white/10 text-white/70 px-2 py-0.5 rounded-full font-mono">ALBUM</span>
         </div>
-        <div id="desktop-queue-list" class="flex-1 overflow-y-auto flex flex-col gap-2 pr-1">
-          <p class="text-xs text-white/50 text-center py-8">Connect Spotify to view live play queue.</p>
+        
+        <div id="lyrics-container" class="flex-1 overflow-y-auto space-y-3 pr-2 text-center flex flex-col items-center justify-center">
+          <p class="text-sm font-medium text-white/90">Lyrics and audio metadata stream directly from your Spotify playback context.</p>
+          <p class="text-xs text-white/40">Select a song from Search or Playlists to start.</p>
         </div>
       </aside>
 
@@ -295,7 +297,7 @@
     let activeDeviceId = null;
     let prevVolume = 70;
     let shuffleState = false; 
-    let repeatState = 0;  // 0: off, 1: context, 2: track
+    let repeatState = 0;
     let currentProgressMs = 0;
     let trackDurationMs = 0;
     let accessToken = localStorage.getItem('spotify_access_token') || null;
@@ -409,7 +411,7 @@
       }
     }
 
-    // 2026 API COMPATIBLE LIBRARY LIKED TRACK CHECK
+    // LIKED TRACK CHECK
     function checkIsTrackLiked(trackId) {
       if (!accessToken || !trackId) return;
       const uri = `spotify:track:${trackId}`;
@@ -424,7 +426,6 @@
         }
       })
       .catch(() => {
-        // Fallback for earlier API versions
         fetch(`https://api.spotify.com/v1/me/tracks/contains?ids=${trackId}`, {
           headers: { Authorization: `Bearer ${accessToken}` }
         })
@@ -472,7 +473,6 @@
       }
     }
 
-    // STANDARD SHUFFLE ONLY
     function cycleShuffle() {
       if (!accessToken) return openModal('setup-modal');
       shuffleState = !shuffleState;
@@ -495,7 +495,6 @@
       }
     }
 
-    // REPEAT CYCLES WITH REPEAT 1 BADGE
     function cycleRepeat() {
       if (!accessToken) return openModal('setup-modal');
       repeatState = (repeatState + 1) % 3;
@@ -546,7 +545,6 @@
       }).then(() => setTimeout(fetchPlaybackState, 300));
     }
 
-    // RELIABLE TRACK PLAYBACK WITH DEVICE ID
     function playTrackUri(uri) {
       if (!accessToken) return openModal('setup-modal');
       fetch(`https://api.spotify.com/v1/me/player/play${getDeviceParam()}`, {
@@ -590,7 +588,6 @@
       return `${min}:${sec < 10 ? '0' : ''}${sec}`;
     }
 
-    // REAL-TIME PLAYBACK SYNC
     function fetchPlaybackState() {
       if (!accessToken) return;
       fetch('https://api.spotify.com/v1/me/player', {
@@ -685,7 +682,6 @@
 
     function fetchQueue() {
       const list = document.getElementById('queue-list');
-      const desktopList = document.getElementById('desktop-queue-list');
       if (!accessToken) return;
 
       fetch('https://api.spotify.com/v1/me/player/queue', {
@@ -694,7 +690,7 @@
       .then(res => res.json())
       .then(data => {
         if (!data.queue?.length) return;
-        const html = data.queue.slice(0, 15).map(t => `
+        list.innerHTML = data.queue.slice(0, 15).map(t => `
           <div onclick="playTrackUri('${t.uri}')" class="glass-button p-2.5 rounded-2xl flex items-center gap-3 cursor-pointer hover:border-emerald-500/50 transition-colors">
             <img src="${t.album.images[2]?.url || t.album.images[0]?.url || ''}" class="w-10 h-10 rounded-xl object-cover" />
             <div class="overflow-hidden">
@@ -703,9 +699,6 @@
             </div>
           </div>
         `).join('');
-
-        if (list) list.innerHTML = html;
-        if (desktopList) desktopList.innerHTML = html;
       });
     }
 
@@ -748,7 +741,6 @@
       });
     }
 
-    // 2026 SPOTIFY API ENDPOINT SUPPORT (/playlists/{id}/items)
     function openPlaylistDetail(playlistId, nameEnc, imgUrlEnc, playlistUri, trackCount) {
       const name = decodeURIComponent(nameEnc);
       const imgUrl = decodeURIComponent(imgUrlEnc);
@@ -805,7 +797,6 @@
         });
       };
 
-      // Primary 2026 API Endpoint (/items) with legacy fallback
       fetchItems(`https://api.spotify.com/v1/playlists/${playlistId}/items?limit=50`);
     }
 
