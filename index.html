@@ -90,7 +90,6 @@
 
 <body class="bg-black text-white h-full w-full overflow-hidden font-sans fixed inset-0">
 
-  <!-- Dynamic Background -->
   <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden">
     <div id="blob1" class="absolute top-1/4 -left-20 w-96 h-96 rounded-full bg-emerald-600/30 blur-[100px] animate-blob-1 transition-colors duration-1000"></div>
     <div id="blob2" class="absolute bottom-1/4 -right-20 w-96 h-96 rounded-full bg-teal-600/30 blur-[100px] animate-blob-2 transition-colors duration-1000"></div>
@@ -100,7 +99,6 @@
   <canvas id="visualizer" class="fixed inset-0 w-full h-full pointer-events-none z-0 opacity-25"></canvas>
   <canvas id="color-canvas" class="hidden" width="50" height="50"></canvas>
 
-  <!-- Main Container -->
   <main class="relative z-10 w-full h-full flex flex-col justify-between items-center px-4 pt-safe pb-safe max-w-4xl mx-auto py-4 lg:py-6">
 
     <!-- Header Navigation -->
@@ -112,16 +110,18 @@
       </button>
 
       <div class="flex items-center gap-2">
-        <button onclick="toggleDrawer('search-drawer')" class="glass-button p-2.5 rounded-full text-white/80 hover:text-white">
+        <button onclick="toggleDrawer('search-drawer')" class="glass-button p-2.5 rounded-full text-white/80 hover:text-white" title="Search">
           <i class="ph ph-magnifying-glass text-lg"></i>
         </button>
-        <button onclick="toggleDrawer('playlists-drawer')" class="glass-button p-2.5 rounded-full text-white/80 hover:text-white">
+        <button onclick="toggleDrawer('queue-drawer')" class="glass-button p-2.5 rounded-full text-white/80 hover:text-white" title="Queue">
+          <i class="ph ph-queue text-lg"></i>
+        </button>
+        <button onclick="toggleDrawer('playlists-drawer')" class="glass-button p-2.5 rounded-full text-white/80 hover:text-white" title="Playlists">
           <i class="ph ph-playlist text-lg"></i>
         </button>
       </div>
     </header>
 
-    <!-- Main Content: Centered & Elevated Album Cover, Details & Timeline -->
     <div class="w-full flex-1 flex flex-col items-center justify-center min-h-0 my-auto pb-28 lg:pb-36">
       <section class="w-full flex flex-col items-center justify-center my-auto">
         
@@ -150,7 +150,6 @@
       </section>
     </div>
 
-    <!-- Floating Control Island -->
     <footer class="w-full max-w-md lg:max-w-2xl glass-panel rounded-3xl p-3.5 sm:p-4 mb-2 flex flex-col gap-3">
       <div class="flex items-center justify-between px-3">
         <button id="like-btn" onclick="toggleLike()" class="text-white/60 hover:text-rose-500 transition-colors">
@@ -193,7 +192,6 @@
 
   </main>
 
-  <!-- Modals & Drawers -->
   <div id="device-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md hidden">
     <div class="glass-panel w-full max-w-sm rounded-3xl p-5 text-center">
       <h3 class="text-lg font-bold mb-3 flex items-center justify-center gap-2">
@@ -232,6 +230,16 @@
     <input type="text" id="search-input" placeholder="Search song or artist..." class="w-full bg-white/10 border border-white/20 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-emerald-400 mb-3" onkeyup="handleSearch(event)" />
     <div id="search-history" class="mb-3 flex flex-wrap gap-1.5"></div>
     <div id="search-results" class="flex-1 overflow-y-auto flex flex-col gap-2"></div>
+  </div>
+
+  <div id="queue-drawer" class="fixed inset-y-0 right-0 w-full max-w-md bg-black/80 backdrop-blur-2xl z-40 p-6 flex flex-col transform translate-x-full transition-transform duration-300">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-lg font-bold flex items-center gap-2"><i class="ph ph-queue"></i> Play Queue</h2>
+      <button onclick="toggleDrawer('queue-drawer')" class="text-white/60 hover:text-white"><i class="ph ph-x text-xl"></i></button>
+    </div>
+    <div id="queue-list" class="flex-1 overflow-y-auto flex flex-col gap-2">
+      <p class="text-xs text-white/50 text-center py-4">Loading queue...</p>
+    </div>
   </div>
 
   <div id="playlists-drawer" class="fixed inset-y-0 right-0 w-full max-w-md bg-black/80 backdrop-blur-2xl z-40 p-6 flex flex-col transform translate-x-full transition-transform duration-300">
@@ -312,6 +320,7 @@
       const drawer = document.getElementById(id);
       drawer.classList.toggle('translate-x-full');
       if (!drawer.classList.contains('translate-x-full')) {
+        if (id === 'queue-drawer') fetchQueue();
         if (id === 'playlists-drawer') { showPlaylistsList(); fetchPlaylists(); }
         if (id === 'search-drawer') renderSearchHistory();
       }
@@ -481,7 +490,7 @@
       updateRepeatUI(repeatState);
 
       const modes = ['off', 'context', 'track'];
-      const deviceParam = activeDeviceId ? `&device_id=${activeDeviceId}` : '';
+      const deviceParam = activeDeviceId ? `&device_id=${encodeURIComponent(activeDeviceId)}` : '';
       fetch(`https://api.spotify.com/v1/me/player/repeat?state=${modes[repeatState]}${deviceParam}`, {
         method: 'PUT',
         headers: { Authorization: `Bearer ${accessToken}` }
@@ -544,7 +553,7 @@
       return null;
     }
 
-    // QUEUE-SAFE TRACK PLAYBACK
+    // DIRECT TRACK PLAYBACK (FORGETS PRECEDING SONGS)
     async function playTrackUri(uri) {
       if (!accessToken) return openModal('setup-modal');
       if (!uri) return;
@@ -553,28 +562,21 @@
         const current = await refreshActiveDevice();
         const deviceParam = current?.id ? `?device_id=${encodeURIComponent(current.id)}` : '';
 
-        const queueRes = await fetch(`https://api.spotify.com/v1/me/player/queue?uri=${encodeURIComponent(uri)}${current?.id ? '&device_id=' + encodeURIComponent(current.id) : ''}`, {
-          method: 'POST',
-          headers: { Authorization: `Bearer ${accessToken}` }
+        const playRes = await fetch(`https://api.spotify.com/v1/me/player/play${deviceParam}`, {
+          method: 'PUT',
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ uris: [uri] })
         });
 
-        if (queueRes.ok) {
-          await fetch(`https://api.spotify.com/v1/me/player/next${deviceParam}`, {
-            method: 'POST',
-            headers: { Authorization: `Bearer ${accessToken}` }
-          });
-        } else {
-          await fetch(`https://api.spotify.com/v1/me/player/play${deviceParam}`, {
-            method: 'PUT',
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ uris: [uri] })
-          });
+        if (!playRes.ok) {
+          const errorText = await playRes.text();
+          console.error('Playback start failed:', playRes.status, errorText);
         }
 
-        setTimeout(fetchPlaybackState, 700);
+        setTimeout(fetchPlaybackState, 500);
       } catch (error) {
         console.error('Playback error:', error);
       }
@@ -727,6 +729,31 @@
       }).then(() => {
         closeModal('device-modal');
         setTimeout(fetchPlaybackState, 400);
+      });
+    }
+
+    function fetchQueue() {
+      const list = document.getElementById('queue-list');
+      if (!accessToken) return;
+
+      fetch('https://api.spotify.com/v1/me/player/queue', {
+        headers: { Authorization: `Bearer ${accessToken}` }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (!data.queue?.length) {
+          list.innerHTML = '<p class="text-xs text-white/50 text-center py-4">No upcoming tracks in queue.</p>';
+          return;
+        }
+        list.innerHTML = data.queue.slice(0, 20).map(t => `
+          <div onclick="playTrackUri('${t.uri}')" class="glass-button p-2.5 rounded-2xl flex items-center gap-3 cursor-pointer hover:border-emerald-500/50 transition-colors">
+            <img src="${t.album?.images?.[2]?.url || t.album?.images?.[0]?.url || ''}" class="w-10 h-10 rounded-xl object-cover" />
+            <div class="overflow-hidden">
+              <p class="text-xs font-bold text-white truncate">${t.name}</p>
+              <p class="text-[10px] text-white/60 truncate">${t.artists?.map(a => a.name).join(', ') || ''}</p>
+            </div>
+          </div>
+        `).join('');
       });
     }
 
