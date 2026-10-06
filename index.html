@@ -88,7 +88,7 @@
   </style>
 </head>
 
-<body class="bg-black text-white h-full w-full overflow-hidden font-sans fixed inset-0">
+<body class="bg-black text-white h-full w-full overflow-hidden font-sans fixed inset-0 select-none">
 
   <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden">
     <div id="blob1" class="absolute top-1/4 -left-20 w-96 h-96 rounded-full bg-emerald-600/30 blur-[100px] animate-blob-1 transition-colors duration-1000"></div>
@@ -99,10 +99,10 @@
   <canvas id="visualizer" class="fixed inset-0 w-full h-full pointer-events-none z-0 opacity-25"></canvas>
   <canvas id="color-canvas" class="hidden" width="50" height="50"></canvas>
 
-  <main class="relative z-10 w-full h-full flex flex-col justify-between items-center px-4 pt-safe pb-safe max-w-4xl mx-auto py-4 lg:py-6">
+  <main class="relative z-10 w-full h-full flex flex-col justify-between items-center px-4 pt-safe pb-safe max-w-2xl lg:max-w-3xl mx-auto py-3 sm:py-4">
 
     <!-- Header Navigation -->
-    <header class="w-full flex items-center justify-between z-20 pt-2 lg:pt-0 mb-2">
+    <header class="w-full flex items-center justify-between z-20 shrink-0">
       <button onclick="openModal('setup-modal')" class="glass-button px-3.5 py-1.5 rounded-full flex items-center gap-2 text-xs font-medium text-white/80 hover:text-white">
         <i class="ph-fill ph-spotify text-emerald-400 text-base"></i>
         <span id="connection-status">Not Connected</span>
@@ -113,7 +113,7 @@
         <button onclick="toggleDrawer('search-drawer')" class="glass-button p-2.5 rounded-full text-white/80 hover:text-white" title="Search">
           <i class="ph ph-magnifying-glass text-lg"></i>
         </button>
-        <button onclick="toggleDrawer('queue-drawer')" class="glass-button p-2.5 rounded-full text-white/80 hover:text-white" title="Queue">
+        <button onclick="toggleDrawer('queue-drawer')" class="glass-button p-2.5 rounded-full text-white/80 hover:text-white" title="Play Queue">
           <i class="ph ph-queue text-lg"></i>
         </button>
         <button onclick="toggleDrawer('playlists-drawer')" class="glass-button p-2.5 rounded-full text-white/80 hover:text-white" title="Playlists">
@@ -122,76 +122,76 @@
       </div>
     </header>
 
-    <div class="w-full flex-1 flex flex-col items-center justify-center min-h-0 my-auto pb-28 lg:pb-36">
-      <section class="w-full flex flex-col items-center justify-center my-auto">
-        
-        <!-- Album Art -->
-        <div class="relative group my-auto flex justify-center">
-          <div id="album-glow" class="absolute inset-0 rounded-3xl bg-emerald-500/20 blur-3xl transition-all duration-700"></div>
-          <div class="relative w-52 h-52 sm:w-64 sm:h-64 md:w-72 md:h-72 lg:w-[360px] lg:h-[360px] rounded-3xl overflow-hidden glass-panel p-2.5 transition-transform duration-300">
-            <img id="track-art" src="https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?w=600&auto=format&fit=crop&q=80" alt="Album Cover" class="w-full h-full object-cover rounded-2xl shadow-2xl" />
-          </div>
+    <div class="w-full flex-1 flex flex-col items-center justify-center min-h-0 py-2 sm:py-4 gap-3 sm:gap-5">
+      
+      <!-- Album Art -->
+      <div class="relative group flex items-center justify-center shrink-0">
+        <div id="album-glow" class="absolute inset-0 rounded-3xl bg-emerald-500/20 blur-3xl transition-all duration-700"></div>
+        <div class="relative w-48 h-48 sm:w-64 sm:h-64 md:w-72 md:h-72 lg:w-80 lg:h-80 rounded-3xl overflow-hidden glass-panel p-2 transition-transform duration-300">
+          <img id="track-art" src="https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?w=600&auto=format&fit=crop&q=80" alt="Album Cover" class="w-full h-full object-cover rounded-2xl shadow-2xl" />
         </div>
+      </div>
 
-        <!-- Track Title & Artist -->
-        <div class="text-center mt-4 sm:mt-6 w-full max-w-xl px-4">
-          <h1 id="track-title" class="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight text-white truncate">Connect Spotify</h1>
-          <p id="track-artist" class="text-xs sm:text-sm lg:text-base text-white/60 truncate mt-1 font-medium">Tap the Spotify badge above to authorize</p>
-        </div>
+      <!-- Track Title & Artist -->
+      <div class="text-center w-full max-w-md px-4 shrink-0">
+        <h1 id="track-title" class="text-lg sm:text-2xl lg:text-3xl font-bold tracking-tight text-white truncate">Connect Spotify</h1>
+        <p id="track-artist" class="text-xs sm:text-sm lg:text-base text-white/60 truncate mt-1 font-medium">Tap the Spotify badge above to authorize</p>
+      </div>
 
-        <!-- Seek / Timeline Bar -->
-        <div class="w-full max-w-md lg:max-w-xl mt-4 sm:mt-5 px-2">
-          <input type="range" id="seek-bar" value="0" max="100" class="w-full" onchange="seekTrack(this.value)" />
-          <div class="flex justify-between text-xs lg:text-sm text-white/50 mt-1.5 font-mono">
-            <span id="time-current">0:00</span>
-            <span id="time-total">0:00</span>
-          </div>
+      <!-- Seek / Timeline Bar -->
+      <div class="w-full max-w-md sm:max-w-lg px-2 shrink-0">
+        <input type="range" id="seek-bar" value="0" max="100" class="w-full" onchange="seekTrack(this.value)" />
+        <div class="flex justify-between text-[11px] sm:text-xs text-white/50 mt-1 font-mono">
+          <span id="time-current">0:00</span>
+          <span id="time-total">0:00</span>
         </div>
-      </section>
+      </div>
+
     </div>
 
-    <footer class="w-full max-w-md lg:max-w-2xl glass-panel rounded-3xl p-3.5 sm:p-4 mb-2 flex flex-col gap-3">
-      <div class="flex items-center justify-between px-3">
+    <footer class="w-full max-w-md sm:max-w-lg glass-panel rounded-3xl p-3 sm:p-4 shrink-0 flex flex-col gap-2.5 sm:gap-3">
+      <div class="flex items-center justify-between px-2 sm:px-3">
         <button id="like-btn" onclick="toggleLike()" class="text-white/60 hover:text-rose-500 transition-colors">
-          <i id="like-icon" class="ph ph-heart text-2xl"></i>
+          <i id="like-icon" class="ph ph-heart text-xl sm:text-2xl"></i>
         </button>
 
         <button id="shuffle-btn" onclick="cycleShuffle()" class="text-white/60 hover:text-white transition-colors relative">
-          <i class="ph ph-shuffle text-2xl"></i>
+          <i class="ph ph-shuffle text-xl sm:text-2xl"></i>
         </button>
 
         <button onclick="prevTrack()" class="text-white/80 hover:text-white transition-transform active:scale-90">
-          <i class="ph-fill ph-skip-back text-3xl"></i>
+          <i class="ph-fill ph-skip-back text-2xl sm:text-3xl"></i>
         </button>
 
-        <button onclick="togglePlay()" class="w-14 h-14 rounded-full bg-emerald-500 text-black flex items-center justify-center text-3xl shadow-lg shadow-emerald-500/30 hover:scale-105 active:scale-95 transition-all">
+        <button onclick="togglePlay()" class="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-emerald-500 text-black flex items-center justify-center text-2xl sm:text-3xl shadow-lg shadow-emerald-500/30 hover:scale-105 active:scale-95 transition-all">
           <i id="play-icon" class="ph-fill ph-play"></i>
         </button>
 
         <button onclick="nextTrack()" class="text-white/80 hover:text-white transition-transform active:scale-90">
-          <i class="ph-fill ph-skip-forward text-3xl"></i>
+          <i class="ph-fill ph-skip-forward text-2xl sm:text-3xl"></i>
         </button>
 
         <button id="repeat-btn" onclick="cycleRepeat()" class="text-white/60 hover:text-white transition-colors relative">
-          <i id="repeat-icon" class="ph ph-repeat text-2xl"></i>
+          <i id="repeat-icon" class="ph ph-repeat text-xl sm:text-2xl"></i>
           <span id="repeat-one-badge" class="hidden absolute -top-1 -right-2 text-[9px] bg-emerald-500 text-black font-bold w-4 h-4 rounded-full flex items-center justify-center">1</span>
         </button>
 
         <button onclick="openModal('device-modal')" class="text-white/60 hover:text-white transition-colors">
-          <i class="ph ph-devices text-2xl"></i>
+          <i class="ph ph-devices text-xl sm:text-2xl"></i>
         </button>
       </div>
 
       <div class="flex items-center justify-center gap-3 px-4 pt-2 border-t border-white/10">
         <button id="mute-btn" onclick="toggleMute()" class="text-white/60 hover:text-white">
-          <i id="mute-icon" class="ph ph-speaker-high text-xl"></i>
+          <i id="mute-icon" class="ph ph-speaker-high text-lg sm:text-xl"></i>
         </button>
-        <input type="range" id="volume-bar" value="70" max="100" class="w-36 sm:w-56" oninput="setVolume(this.value)" />
+        <input type="range" id="volume-bar" value="70" max="100" class="w-32 sm:w-48" oninput="setVolume(this.value)" />
       </div>
     </footer>
 
   </main>
 
+  <!-- Devices Modal -->
   <div id="device-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md hidden">
     <div class="glass-panel w-full max-w-sm rounded-3xl p-5 text-center">
       <h3 class="text-lg font-bold mb-3 flex items-center justify-center gap-2">
@@ -202,6 +202,7 @@
     </div>
   </div>
 
+  <!-- Setup Modal -->
   <div id="setup-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md hidden">
     <div class="glass-panel w-full max-w-md rounded-3xl p-6 text-left">
       <h3 class="text-xl font-bold mb-2 flex items-center gap-2">
@@ -222,6 +223,7 @@
     </div>
   </div>
 
+  <!-- Search Drawer -->
   <div id="search-drawer" class="fixed inset-y-0 right-0 w-full max-w-md bg-black/80 backdrop-blur-2xl z-40 p-6 flex flex-col transform translate-x-full transition-transform duration-300">
     <div class="flex items-center justify-between mb-4">
       <h2 class="text-lg font-bold flex items-center gap-2"><i class="ph ph-magnifying-glass"></i> Search Tracks</h2>
@@ -232,6 +234,7 @@
     <div id="search-results" class="flex-1 overflow-y-auto flex flex-col gap-2"></div>
   </div>
 
+  <!-- Queue Drawer -->
   <div id="queue-drawer" class="fixed inset-y-0 right-0 w-full max-w-md bg-black/80 backdrop-blur-2xl z-40 p-6 flex flex-col transform translate-x-full transition-transform duration-300">
     <div class="flex items-center justify-between mb-4">
       <h2 class="text-lg font-bold flex items-center gap-2"><i class="ph ph-queue"></i> Play Queue</h2>
@@ -242,6 +245,7 @@
     </div>
   </div>
 
+  <!-- Playlists Drawer -->
   <div id="playlists-drawer" class="fixed inset-y-0 right-0 w-full max-w-md bg-black/80 backdrop-blur-2xl z-40 p-6 flex flex-col transform translate-x-full transition-transform duration-300">
     <div class="flex items-center justify-between mb-4">
       <div id="playlist-header-left" class="flex items-center gap-2">
@@ -368,11 +372,11 @@
         prevVolume = volBar.value;
         volBar.value = 0;
         isMuted = true;
-        muteIcon.className = 'ph ph-speaker-x text-xl text-rose-400';
+        muteIcon.className = 'ph ph-speaker-x text-lg sm:text-xl text-rose-400';
       } else {
         volBar.value = prevVolume;
         isMuted = false;
-        muteIcon.className = 'ph ph-speaker-high text-xl';
+        muteIcon.className = 'ph ph-speaker-high text-lg sm:text-xl';
       }
       setVolume(volBar.value);
     }
@@ -396,7 +400,7 @@
       }
     }
 
-    // LIKED TRACK CHECK
+    // Liked Track Library Check & Toggle
     async function checkIsTrackLiked(trackId) {
       if (!accessToken || !trackId) return;
       try {
@@ -449,10 +453,10 @@
       const icon = document.getElementById('like-icon');
       const btn = document.getElementById('like-btn');
       if (liked) {
-        icon.className = 'ph-fill ph-heart text-2xl text-rose-500';
+        icon.className = 'ph-fill ph-heart text-xl sm:text-2xl text-rose-500';
         btn.className = 'text-rose-500 transition-colors';
       } else {
-        icon.className = 'ph ph-heart text-2xl';
+        icon.className = 'ph ph-heart text-xl sm:text-2xl';
         btn.className = 'text-white/60 hover:text-rose-500 transition-colors';
       }
     }
@@ -505,15 +509,15 @@
 
       if (state === 0) {
         btn.className = 'text-white/60 hover:text-white transition-colors relative';
-        icon.className = 'ph ph-repeat text-2xl';
+        icon.className = 'ph ph-repeat text-xl sm:text-2xl';
         badge.classList.add('hidden');
       } else if (state === 1) {
         btn.className = 'text-emerald-400 transition-colors relative';
-        icon.className = 'ph ph-repeat text-2xl';
+        icon.className = 'ph ph-repeat text-xl sm:text-2xl';
         badge.classList.add('hidden');
       } else {
         btn.className = 'text-emerald-400 transition-colors relative';
-        icon.className = 'ph ph-repeat-once text-2xl';
+        icon.className = 'ph ph-repeat-once text-xl sm:text-2xl';
         badge.classList.remove('hidden');
       }
     }
@@ -553,7 +557,7 @@
       return null;
     }
 
-    // DIRECT TRACK PLAYBACK (FORGETS PRECEDING SONGS)
+    // QUEUE-SAFE TRACK PLAYBACK (SKIPS TO SONG WITHOUT CLEARING QUEUE)
     async function playTrackUri(uri) {
       if (!accessToken) return openModal('setup-modal');
       if (!uri) return;
@@ -562,21 +566,30 @@
         const current = await refreshActiveDevice();
         const deviceParam = current?.id ? `?device_id=${encodeURIComponent(current.id)}` : '';
 
-        const playRes = await fetch(`https://api.spotify.com/v1/me/player/play${deviceParam}`, {
-          method: 'PUT',
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ uris: [uri] })
+        // Add track to Spotify's queue, then trigger skip to next song
+        const queueRes = await fetch(`https://api.spotify.com/v1/me/player/queue?uri=${encodeURIComponent(uri)}${current?.id ? '&device_id=' + encodeURIComponent(current.id) : ''}`, {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${accessToken}` }
         });
 
-        if (!playRes.ok) {
-          const errorText = await playRes.text();
-          console.error('Playback start failed:', playRes.status, errorText);
+        if (queueRes.ok) {
+          await fetch(`https://api.spotify.com/v1/me/player/next${deviceParam}`, {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${accessToken}` }
+          });
+        } else {
+          // Fallback if player queue fails
+          await fetch(`https://api.spotify.com/v1/me/player/play${deviceParam}`, {
+            method: 'PUT',
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ uris: [uri] })
+          });
         }
 
-        setTimeout(fetchPlaybackState, 500);
+        setTimeout(fetchPlaybackState, 600);
       } catch (error) {
         console.error('Playback error:', error);
       }
