@@ -6,7 +6,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="mobile-web-app-capable" content="yes" />
-  <title>Liquid Glass — Spotify Web Player</title>
+  <title>Liquid Glass — Spotify Controller</title>
   
   <!-- Spotify Logo Favicon -->
   <link rel="icon" type="image/svg+xml" href="https://upload.wikimedia.org/wikipedia/commons/1/19/Spotify_logo_without_text.svg" />
@@ -24,8 +24,8 @@
 
     .glass-panel {
       background: rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(24px) saturate(180%);
-      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      backdrop-filter: blur(28px) saturate(180%);
+      -webkit-backdrop-filter: blur(28px) saturate(180%);
       border: 1px solid rgba(255, 255, 255, 0.12);
       box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37),
                   inset 0 1px 1px 0 rgba(255, 255, 255, 0.2);
@@ -38,9 +38,13 @@
       border: 1px solid rgba(255, 255, 255, 0.15);
       transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     }
+    .glass-button:hover {
+      background: rgba(255, 255, 255, 0.14);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
     .glass-button:active {
-      transform: scale(0.92);
-      background: rgba(255, 255, 255, 0.18);
+      transform: scale(0.94);
+      background: rgba(255, 255, 255, 0.2);
     }
 
     @keyframes blob-float-1 {
@@ -86,9 +90,6 @@
 
 <body class="bg-black text-white h-full w-full overflow-hidden font-sans fixed inset-0">
 
-  <!-- Audio Element for Demo Mode -->
-  <audio id="demo-audio" crossorigin="anonymous" src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=lofi-study-112191.mp3"></audio>
-
   <!-- Dynamic Liquid Background -->
   <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden">
     <div id="blob1" class="absolute top-1/4 -left-20 w-96 h-96 rounded-full bg-emerald-600/30 blur-[100px] animate-blob-1 transition-colors duration-1000"></div>
@@ -99,17 +100,19 @@
   <canvas id="visualizer" class="fixed inset-0 w-full h-full pointer-events-none z-0 opacity-25"></canvas>
   <canvas id="color-canvas" class="hidden" width="50" height="50"></canvas>
 
-  <!-- Full-Screen Container -->
-  <main class="relative z-10 w-full h-full flex flex-col justify-between items-center px-4 pt-safe pb-safe max-w-2xl mx-auto">
+  <!-- Responsive Container -->
+  <main class="relative z-10 w-full h-full flex flex-col justify-between items-center px-4 pt-safe pb-safe max-w-md lg:max-w-6xl mx-auto lg:py-6">
 
-    <!-- Header Controls -->
-    <header class="w-full flex items-center justify-between z-20 pt-2">
+    <!-- Top Header Navigation -->
+    <header class="w-full flex items-center justify-between z-20 pt-2 lg:pt-0 mb-2">
+      <!-- Spotify Status Badge -->
       <button onclick="openModal('setup-modal')" class="glass-button px-3 py-1.5 rounded-full flex items-center gap-2 text-xs font-medium text-white/80 hover:text-white">
         <i class="ph-fill ph-spotify text-emerald-400 text-base"></i>
-        <span id="connection-status">Demo Mode</span>
-        <span id="status-dot" class="w-2 h-2 rounded-full bg-amber-400"></span>
+        <span id="connection-status">Not Connected</span>
+        <span id="status-dot" class="w-2 h-2 rounded-full bg-rose-500"></span>
       </button>
 
+      <!-- Action Buttons -->
       <div class="flex items-center gap-2">
         <button onclick="toggleDrawer('search-drawer')" class="glass-button p-2.5 rounded-full text-white/80 hover:text-white">
           <i class="ph ph-magnifying-glass text-lg"></i>
@@ -123,62 +126,92 @@
       </div>
     </header>
 
-    <!-- Center Player -->
-    <section class="w-full flex-1 flex flex-col items-center justify-center my-auto min-h-0 py-2">
-      <div class="relative group my-auto">
-        <div id="album-glow" class="absolute inset-0 rounded-3xl bg-emerald-500/20 blur-2xl transition-all duration-700"></div>
-        <div class="relative w-48 h-48 sm:w-64 sm:h-64 md:w-72 md:h-72 rounded-3xl overflow-hidden glass-panel p-2 transition-transform duration-300">
-          <img id="track-art" src="https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?w=600&auto=format&fit=crop&q=80" alt="Album Cover" class="w-full h-full object-cover rounded-2xl shadow-2xl" />
+    <!-- Main Content Area: PC Dual-Pane vs Mobile Stack -->
+    <div class="w-full flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6 items-center min-h-0 my-auto py-2">
+      
+      <!-- LEFT PANE: Album Art & Track Info -->
+      <section class="lg:col-span-7 w-full flex flex-col items-center justify-center my-auto">
+        
+        <!-- Album Artwork with Glow -->
+        <div class="relative group my-auto">
+          <div id="album-glow" class="absolute inset-0 rounded-3xl bg-emerald-500/20 blur-2xl transition-all duration-700"></div>
+          <div class="relative w-48 h-48 sm:w-64 sm:h-64 md:w-72 md:h-72 lg:w-80 lg:h-80 rounded-3xl overflow-hidden glass-panel p-2 transition-transform duration-300">
+            <img id="track-art" src="https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?w=600&auto=format&fit=crop&q=80" alt="Album Cover" class="w-full h-full object-cover rounded-2xl shadow-2xl" />
+          </div>
         </div>
-      </div>
 
-      <div class="text-center mt-4 sm:mt-6 w-full px-4">
-        <h1 id="track-title" class="text-xl sm:text-2xl font-bold tracking-tight text-white truncate">Lofi Study Stream</h1>
-        <p id="track-artist" class="text-xs sm:text-sm text-white/60 truncate mt-1">Liquid Glass Player</p>
-      </div>
-
-      <div class="w-full max-w-md mt-4 px-2">
-        <input type="range" id="seek-bar" value="0" max="100" class="w-full" onchange="seekTrack(this.value)" />
-        <div class="flex justify-between text-[10px] sm:text-xs text-white/50 mt-1 font-mono">
-          <span id="time-current">0:00</span>
-          <span id="time-total">0:00</span>
+        <!-- Track Title & Artist -->
+        <div class="text-center mt-4 sm:mt-6 w-full px-4">
+          <h1 id="track-title" class="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight text-white truncate">Connect Spotify</h1>
+          <p id="track-artist" class="text-xs sm:text-sm lg:text-base text-white/60 truncate mt-1">Tap the Spotify badge above to authorize</p>
         </div>
-      </div>
-    </section>
 
-    <!-- Control Island -->
-    <footer class="w-full max-w-md glass-panel rounded-3xl p-3 sm:p-4 mb-2 flex flex-col gap-3">
+        <!-- Seek Bar -->
+        <div class="w-full max-w-md mt-4 px-2">
+          <input type="range" id="seek-bar" value="0" max="100" class="w-full" onchange="seekTrack(this.value)" />
+          <div class="flex justify-between text-[10px] sm:text-xs text-white/50 mt-1 font-mono">
+            <span id="time-current">0:00</span>
+            <span id="time-total">0:00</span>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- RIGHT PANE: Integrated Queue/Playlist Dashboard on PC & Tablet -->
+      <aside class="hidden lg:flex lg:col-span-5 h-full max-h-[460px] glass-panel rounded-3xl p-5 flex-col overflow-hidden">
+        <div class="flex items-center justify-between border-b border-white/10 pb-3 mb-3">
+          <h2 class="text-sm font-bold flex items-center gap-2"><i class="ph ph-queue text-emerald-400"></i> Up Next</h2>
+          <span class="text-[10px] text-white/50 uppercase tracking-wider font-semibold">Live Queue</span>
+        </div>
+        <div id="desktop-queue-list" class="flex-1 overflow-y-auto flex flex-col gap-2 pr-1">
+          <p class="text-xs text-white/50 text-center py-8">Connect Spotify to view live play queue.</p>
+        </div>
+      </aside>
+
+    </div>
+
+    <!-- Bottom Floating Control Island -->
+    <footer class="w-full max-w-md lg:max-w-xl glass-panel rounded-3xl p-3 sm:p-4 mb-2 flex flex-col gap-3">
       <div class="flex items-center justify-between px-2">
+        
+        <!-- Like Song -->
         <button id="like-btn" onclick="toggleLike()" class="text-white/60 hover:text-rose-500 transition-colors">
           <i class="ph ph-heart text-xl"></i>
         </button>
 
+        <!-- Smart Shuffle Toggle -->
         <button id="shuffle-btn" onclick="cycleShuffle()" class="text-white/60 hover:text-white transition-colors relative">
           <i class="ph ph-shuffle text-xl"></i>
           <span id="smart-shuffle-badge" class="hidden absolute -top-1 -right-2 text-[9px] bg-emerald-500 text-black font-bold px-1 rounded-full">✨</span>
         </button>
 
+        <!-- Previous -->
         <button onclick="prevTrack()" class="text-white/80 hover:text-white transition-transform active:scale-90">
           <i class="ph-fill ph-skip-back text-2xl"></i>
         </button>
 
+        <!-- Play/Pause -->
         <button onclick="togglePlay()" class="w-12 h-12 rounded-full bg-emerald-500 text-black flex items-center justify-center text-2xl shadow-lg shadow-emerald-500/30 hover:scale-105 active:scale-95 transition-all">
           <i id="play-icon" class="ph-fill ph-play"></i>
         </button>
 
+        <!-- Next -->
         <button onclick="nextTrack()" class="text-white/80 hover:text-white transition-transform active:scale-90">
           <i class="ph-fill ph-skip-forward text-2xl"></i>
         </button>
 
+        <!-- Repeat -->
         <button id="repeat-btn" onclick="cycleRepeat()" class="text-white/60 hover:text-white transition-colors">
           <i class="ph ph-repeat text-xl"></i>
         </button>
 
+        <!-- Device Picker Toggle -->
         <button onclick="openModal('device-modal')" class="text-white/60 hover:text-white transition-colors">
           <i class="ph ph-devices text-xl"></i>
         </button>
       </div>
 
+      <!-- Centered Volume Control Row -->
       <div class="flex items-center justify-center gap-3 px-4 pt-1 border-t border-white/10">
         <button id="mute-btn" onclick="toggleMute()" class="text-white/60 hover:text-white">
           <i id="mute-icon" class="ph ph-speaker-high text-lg"></i>
@@ -186,6 +219,7 @@
         <input type="range" id="volume-bar" value="70" max="100" class="w-32 sm:w-48" oninput="setVolume(this.value)" />
       </div>
     </footer>
+
   </main>
 
   <!-- Modals & Drawers -->
@@ -215,7 +249,7 @@
       <input type="text" id="redirect-uri-display" readonly class="w-full bg-white/5 border border-white/10 rounded-xl p-2.5 text-xs text-white/50 mb-4 font-mono select-all" />
 
       <div class="flex gap-2">
-        <button onclick="startSpotifyLogin()" class="flex-1 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-black font-bold rounded-xl text-xs transition-colors">Connect</button>
+        <button onclick="startSpotifyLogin()" class="flex-1 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-black font-bold rounded-xl text-xs transition-colors">Connect / Reauthorize</button>
         <button onclick="closeModal('setup-modal')" class="glass-button px-4 py-2.5 rounded-xl text-xs">Cancel</button>
       </div>
     </div>
@@ -244,7 +278,9 @@
       <h2 class="text-lg font-bold flex items-center gap-2"><i class="ph ph-playlist"></i> Your Playlists</h2>
       <button onclick="toggleDrawer('playlists-drawer')" class="text-white/60 hover:text-white"><i class="ph ph-x text-xl"></i></button>
     </div>
-    <div id="playlists-list" class="flex-1 overflow-y-auto flex flex-col gap-2"></div>
+    <div id="playlists-list" class="flex-1 overflow-y-auto flex flex-col gap-2">
+      <p class="text-xs text-white/50 text-center py-4">Loading playlists...</p>
+    </div>
   </div>
 
   <!-- JavaScript Logic -->
@@ -259,7 +295,6 @@
     let accessToken = localStorage.getItem('spotify_access_token') || null;
     let searchHistory = JSON.parse(localStorage.getItem('search_history') || '[]');
 
-    const demoAudio = document.getElementById('demo-audio');
     const currentOrigin = window.location.origin + window.location.pathname;
     document.getElementById('redirect-uri-display').value = currentOrigin;
 
@@ -275,7 +310,7 @@
       const bars = 32;
       const width = canvas.width / bars;
       for (let i = 0; i < bars; i++) {
-        const height = isPlaying ? Math.random() * (canvas.height * 0.18) + 15 : 8;
+        const height = isPlaying ? Math.random() * (canvas.height * 0.18) + 15 : 4;
         ctx.fillStyle = 'rgba(255, 255, 255, 0.08)';
         ctx.fillRect(i * width * 1.5, canvas.height - height, width, height);
       }
@@ -299,7 +334,7 @@
       }
     }
 
-    // Dynamic Artwork Colors
+    // Dynamic Artwork Color Extraction
     function extractColorAndApply(imgUrl) {
       const img = new Image();
       img.crossOrigin = 'Anonymous';
@@ -318,17 +353,12 @@
 
     // Playback Controls
     function togglePlay() {
-      if (accessToken) {
-        const endpoint = isPlaying ? 'pause' : 'play';
-        fetch(`https://api.spotify.com/v1/me/player/${endpoint}`, {
-          method: 'PUT',
-          headers: { Authorization: `Bearer ${accessToken}` }
-        }).then(() => fetchPlaybackState());
-      } else {
-        isPlaying = !isPlaying;
-        if (isPlaying) demoAudio.play(); else demoAudio.pause();
-        updatePlayStateUI(isPlaying);
-      }
+      if (!accessToken) return openModal('setup-modal');
+      const endpoint = isPlaying ? 'pause' : 'play';
+      fetch(`https://api.spotify.com/v1/me/player/${endpoint}`, {
+        method: 'PUT',
+        headers: { Authorization: `Bearer ${accessToken}` }
+      }).then(() => setTimeout(fetchPlaybackState, 300));
     }
 
     function updatePlayStateUI(playing) {
@@ -358,8 +388,6 @@
           method: 'PUT',
           headers: { Authorization: `Bearer ${accessToken}` }
         });
-      } else {
-        demoAudio.volume = val / 100;
       }
     }
 
@@ -370,12 +398,11 @@
           method: 'PUT',
           headers: { Authorization: `Bearer ${accessToken}` }
         });
-      } else if (!accessToken) {
-        demoAudio.currentTime = (percent / 100) * (demoAudio.duration || 100);
       }
     }
 
     function cycleShuffle() {
+      if (!accessToken) return openModal('setup-modal');
       shuffleState = (shuffleState + 1) % 3;
       const btn = document.getElementById('shuffle-btn');
       const badge = document.getElementById('smart-shuffle-badge');
@@ -389,24 +416,21 @@
         btn.className = 'text-emerald-400 transition-colors relative';
         badge.classList.remove('hidden');
       }
-      if (accessToken) {
-        fetch(`https://api.spotify.com/v1/me/player/shuffle?state=${shuffleState > 0}`, {
-          method: 'PUT',
-          headers: { Authorization: `Bearer ${accessToken}` }
-        });
-      }
+      fetch(`https://api.spotify.com/v1/me/player/shuffle?state=${shuffleState > 0}`, {
+        method: 'PUT',
+        headers: { Authorization: `Bearer ${accessToken}` }
+      });
     }
 
     function cycleRepeat() {
+      if (!accessToken) return openModal('setup-modal');
       repeatState = (repeatState + 1) % 3;
       const modes = ['off', 'context', 'track'];
       document.getElementById('repeat-btn').className = repeatState === 0 ? 'text-white/60 hover:text-white' : 'text-emerald-400';
-      if (accessToken) {
-        fetch(`https://api.spotify.com/v1/me/player/repeat?state=${modes[repeatState]}`, {
-          method: 'PUT',
-          headers: { Authorization: `Bearer ${accessToken}` }
-        });
-      }
+      fetch(`https://api.spotify.com/v1/me/player/repeat?state=${modes[repeatState]}`, {
+        method: 'PUT',
+        headers: { Authorization: `Bearer ${accessToken}` }
+      });
     }
 
     function toggleLike() {
@@ -414,59 +438,52 @@
     }
 
     function nextTrack() {
-      if (accessToken) {
-        fetch('https://api.spotify.com/v1/me/player/next', {
-          method: 'POST',
-          headers: { Authorization: `Bearer ${accessToken}` }
-        }).then(() => setTimeout(fetchPlaybackState, 300));
-      }
+      if (!accessToken) return openModal('setup-modal');
+      fetch('https://api.spotify.com/v1/me/player/next', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${accessToken}` }
+      }).then(() => setTimeout(fetchPlaybackState, 300));
     }
 
     function prevTrack() {
-      if (accessToken) {
-        fetch('https://api.spotify.com/v1/me/player/previous', {
-          method: 'POST',
-          headers: { Authorization: `Bearer ${accessToken}` }
-        }).then(() => setTimeout(fetchPlaybackState, 300));
-      }
+      if (!accessToken) return openModal('setup-modal');
+      fetch('https://api.spotify.com/v1/me/player/previous', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${accessToken}` }
+      }).then(() => setTimeout(fetchPlaybackState, 300));
     }
 
     function playTrackUri(uri) {
-      if (accessToken) {
-        fetch('https://api.spotify.com/v1/me/player/play', {
-          method: 'PUT',
-          headers: { 
-            Authorization: `Bearer ${accessToken}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ uris: [uri] })
-        }).then(() => setTimeout(fetchPlaybackState, 400));
-      } else {
-        togglePlay();
-      }
+      if (!accessToken) return openModal('setup-modal');
+      fetch('https://api.spotify.com/v1/me/player/play', {
+        method: 'PUT',
+        headers: { 
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ uris: [uri] })
+      }).then(() => setTimeout(fetchPlaybackState, 400));
     }
 
     function playContextUri(contextUri) {
-      if (accessToken) {
-        fetch('https://api.spotify.com/v1/me/player/play', {
-          method: 'PUT',
-          headers: { 
-            Authorization: `Bearer ${accessToken}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ context_uri: contextUri })
-        }).then(() => setTimeout(fetchPlaybackState, 400));
-      }
+      if (!accessToken) return openModal('setup-modal');
+      fetch('https://api.spotify.com/v1/me/player/play', {
+        method: 'PUT',
+        headers: { 
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ context_uri: contextUri })
+      }).then(() => setTimeout(fetchPlaybackState, 400));
     }
 
-    // Formatting Time
     function formatMs(ms) {
       const sec = Math.floor((ms / 1000) % 60);
       const min = Math.floor(ms / 60000);
       return `${min}:${sec < 10 ? '0' : ''}${sec}`;
     }
 
-    // Spotify Player Sync
+    // Spotify Real-Time Sync
     function fetchPlaybackState() {
       if (!accessToken) return;
       fetch('https://api.spotify.com/v1/me/player', {
@@ -493,11 +510,10 @@
       });
     }
 
-    // Devices, Queue, Search, Playlists
     function fetchDevices() {
       const list = document.getElementById('device-list');
       if (!accessToken) {
-        list.innerHTML = '<div class="glass-panel p-3 rounded-xl text-xs text-emerald-400 font-medium">Demo Web Player (Active)</div>';
+        list.innerHTML = '<p class="text-xs text-white/50">Please connect Spotify first.</p>';
         return;
       }
       fetch('https://api.spotify.com/v1/me/player/devices', {
@@ -506,7 +522,7 @@
       .then(res => res.json())
       .then(data => {
         if (!data.devices?.length) {
-          list.innerHTML = '<p class="text-xs text-white/50">No active Spotify devices found.</p>';
+          list.innerHTML = '<p class="text-xs text-white/50">No active Spotify devices found. Open Spotify on any device.</p>';
           return;
         }
         list.innerHTML = data.devices.map(d => `
@@ -531,49 +547,64 @@
 
     function fetchQueue() {
       const list = document.getElementById('queue-list');
-      if (!accessToken) {
-        list.innerHTML = '<p class="text-xs text-white/50 text-center py-4">Connect Spotify to view live play queue.</p>';
-        return;
-      }
+      const desktopList = document.getElementById('desktop-queue-list');
+      if (!accessToken) return;
+
       fetch('https://api.spotify.com/v1/me/player/queue', {
         headers: { Authorization: `Bearer ${accessToken}` }
       })
       .then(res => res.json())
       .then(data => {
-        if (!data.queue?.length) return list.innerHTML = '<p class="text-xs text-white/50">Queue is empty.</p>';
-        list.innerHTML = data.queue.slice(0, 15).map(t => `
-          <div onclick="playTrackUri('${t.uri}')" class="glass-button p-2.5 rounded-2xl flex items-center gap-3 cursor-pointer">
-            <img src="${t.album.images[2]?.url || ''}" class="w-10 h-10 rounded-xl object-cover" />
+        if (!data.queue?.length) return;
+        const html = data.queue.slice(0, 15).map(t => `
+          <div onclick="playTrackUri('${t.uri}')" class="glass-button p-2.5 rounded-2xl flex items-center gap-3 cursor-pointer hover:border-emerald-500/50 transition-colors">
+            <img src="${t.album.images[2]?.url || t.album.images[0]?.url || ''}" class="w-10 h-10 rounded-xl object-cover" />
             <div class="overflow-hidden">
               <p class="text-xs font-bold text-white truncate">${t.name}</p>
               <p class="text-[10px] text-white/60 truncate">${t.artists.map(a => a.name).join(', ')}</p>
             </div>
           </div>
         `).join('');
+
+        if (list) list.innerHTML = html;
+        if (desktopList) desktopList.innerHTML = html;
       });
     }
 
+    // FIXED PLAYLISTS FETCHING FUNCTION
     function fetchPlaylists() {
       const list = document.getElementById('playlists-list');
       if (!accessToken) {
         list.innerHTML = '<p class="text-xs text-white/50 text-center py-4">Connect Spotify to view your playlists.</p>';
         return;
       }
-      fetch('https://api.spotify.com/v1/me/playlists', {
+
+      fetch('https://api.spotify.com/v1/me/playlists?limit=50', {
         headers: { Authorization: `Bearer ${accessToken}` }
       })
       .then(res => res.json())
       .then(data => {
-        if (!data.items?.length) return list.innerHTML = '<p class="text-xs text-white/50">No playlists found.</p>';
-        list.innerHTML = data.items.map(p => `
-          <div onclick="playContextUri('${p.uri}')" class="glass-button p-2.5 rounded-2xl flex items-center gap-3 cursor-pointer">
-            <img src="${p.images[0]?.url || ''}" class="w-10 h-10 rounded-xl object-cover" />
-            <div class="overflow-hidden">
-              <p class="text-xs font-bold text-white truncate">${p.name}</p>
-              <p class="text-[10px] text-white/60 truncate">${p.tracks.total} Tracks</p>
+        if (!data.items || data.items.length === 0) {
+          list.innerHTML = '<p class="text-xs text-white/50 text-center py-4">No playlists found or missing permissions. Click setup to reconnect.</p>';
+          return;
+        }
+
+        list.innerHTML = data.items.map(p => {
+          const imgUrl = p.images && p.images.length > 0 ? p.images[0].url : 'https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?w=100&auto=format&fit=crop&q=80';
+          const trackCount = p.tracks ? p.tracks.total : (p.items ? p.items.length : 0);
+          return `
+            <div onclick="playContextUri('${p.uri}')" class="glass-button p-2.5 rounded-2xl flex items-center gap-3 cursor-pointer hover:border-emerald-500/50 transition-colors">
+              <img src="${imgUrl}" class="w-10 h-10 rounded-xl object-cover" />
+              <div class="overflow-hidden">
+                <p class="text-xs font-bold text-white truncate">${p.name}</p>
+                <p class="text-[10px] text-white/60 truncate">${trackCount} Tracks</p>
+              </div>
             </div>
-          </div>
-        `).join('');
+          `;
+        }).join('');
+      })
+      .catch(() => {
+        list.innerHTML = '<p class="text-xs text-white/50 text-center py-4">Failed to load playlists. Try reconnecting Spotify.</p>';
       });
     }
 
@@ -607,7 +638,7 @@
       .then(data => {
         const results = document.getElementById('search-results');
         results.innerHTML = data.tracks.items.map(t => `
-          <div onclick="playTrackUri('${t.uri}')" class="glass-button p-2.5 rounded-2xl flex items-center gap-3 cursor-pointer">
+          <div onclick="playTrackUri('${t.uri}')" class="glass-button p-2.5 rounded-2xl flex items-center gap-3 cursor-pointer hover:border-emerald-500/50 transition-colors">
             <img src="${t.album.images[2]?.url || ''}" class="w-10 h-10 rounded-xl object-cover" />
             <div class="overflow-hidden">
               <p class="text-xs font-bold text-white truncate">${t.name}</p>
@@ -618,9 +649,10 @@
       });
     }
 
-    // Spotify OAuth PKCE Flow
+    // Spotify PKCE OAuth (Updated Scopes)
     async function startSpotifyLogin() {
-      const clientId = document.getElementById('client-id-input').value.trim();
+      const clientIdInput = document.getElementById('client-id-input').value.trim();
+      const clientId = clientIdInput || localStorage.getItem('spotify_client_id');
       if (!clientId) return alert('Please enter a valid Client ID');
 
       const verifier = generateRandomString(128);
@@ -629,11 +661,13 @@
       localStorage.setItem('spotify_client_id', clientId);
       localStorage.setItem('code_verifier', verifier);
 
+      const scopes = 'user-read-playback-state user-modify-playback-state user-read-currently-playing playlist-read-private playlist-read-collaborative user-library-read';
+
       const params = new URLSearchParams({
         client_id: clientId,
         response_type: 'code',
         redirect_uri: currentOrigin,
-        scope: 'user-read-playback-state user-modify-playback-state user-read-currently-playing playlist-read-private',
+        scope: scopes,
         code_challenge_method: 'S256',
         code_challenge: challenge
       });
@@ -655,7 +689,7 @@
         .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
     }
 
-    // Process Auth Redirect Token
+    // Process Auth Code
     const urlParams = new URLSearchParams(window.location.search);
     const authCode = urlParams.get('code');
     if (authCode) {
@@ -683,20 +717,21 @@
       });
     }
 
-    // Initialization & Event Loops
+    // Initialization
     if (accessToken) {
       document.getElementById('connection-status').textContent = 'Connected';
       document.getElementById('status-dot').className = 'w-2 h-2 rounded-full bg-emerald-400';
       setInterval(fetchPlaybackState, 2000);
+      setInterval(fetchQueue, 5000);
       fetchPlaybackState();
+      fetchQueue();
     } else {
-      demoAudio.addEventListener('timeupdate', () => {
-        if (demoAudio.duration) {
-          document.getElementById('seek-bar').value = (demoAudio.currentTime / demoAudio.duration) * 100;
-          document.getElementById('time-current').textContent = formatMs(demoAudio.currentTime * 1000);
-          document.getElementById('time-total').textContent = formatMs(demoAudio.duration * 1000);
-        }
-      });
+      openModal('setup-modal');
+    }
+
+    const storedClientId = localStorage.getItem('spotify_client_id');
+    if (storedClientId) {
+      document.getElementById('client-id-input').value = storedClientId;
     }
 
     extractColorAndApply(document.getElementById('track-art').src);
