@@ -90,7 +90,7 @@
 
 <body class="bg-black text-white h-full w-full overflow-hidden font-sans fixed inset-0">
 
-  <!-- Dynamic Liquid Background -->
+  <!-- Dynamic Background -->
   <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden">
     <div id="blob1" class="absolute top-1/4 -left-20 w-96 h-96 rounded-full bg-emerald-600/30 blur-[100px] animate-blob-1 transition-colors duration-1000"></div>
     <div id="blob2" class="absolute bottom-1/4 -right-20 w-96 h-96 rounded-full bg-teal-600/30 blur-[100px] animate-blob-2 transition-colors duration-1000"></div>
@@ -100,19 +100,17 @@
   <canvas id="visualizer" class="fixed inset-0 w-full h-full pointer-events-none z-0 opacity-25"></canvas>
   <canvas id="color-canvas" class="hidden" width="50" height="50"></canvas>
 
-  <!-- Responsive Container -->
+  <!-- Container -->
   <main class="relative z-10 w-full h-full flex flex-col justify-between items-center px-4 pt-safe pb-safe max-w-md lg:max-w-6xl mx-auto lg:py-6">
 
-    <!-- Top Header Navigation -->
+    <!-- Header Navigation -->
     <header class="w-full flex items-center justify-between z-20 pt-2 lg:pt-0 mb-2">
-      <!-- Spotify Status Badge -->
       <button onclick="openModal('setup-modal')" class="glass-button px-3 py-1.5 rounded-full flex items-center gap-2 text-xs font-medium text-white/80 hover:text-white">
         <i class="ph-fill ph-spotify text-emerald-400 text-base"></i>
         <span id="connection-status">Not Connected</span>
         <span id="status-dot" class="w-2 h-2 rounded-full bg-rose-500"></span>
       </button>
 
-      <!-- Action Buttons -->
       <div class="flex items-center gap-2">
         <button onclick="toggleDrawer('search-drawer')" class="glass-button p-2.5 rounded-full text-white/80 hover:text-white">
           <i class="ph ph-magnifying-glass text-lg"></i>
@@ -126,13 +124,11 @@
       </div>
     </header>
 
-    <!-- Main Content Area: PC Dual-Pane vs Mobile Stack -->
+    <!-- Main Content -->
     <div class="w-full flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6 items-center min-h-0 my-auto py-2">
       
-      <!-- LEFT PANE: Album Art & Track Info -->
+      <!-- LEFT PANE -->
       <section class="lg:col-span-7 w-full flex flex-col items-center justify-center my-auto">
-        
-        <!-- Album Artwork with Glow -->
         <div class="relative group my-auto">
           <div id="album-glow" class="absolute inset-0 rounded-3xl bg-emerald-500/20 blur-2xl transition-all duration-700"></div>
           <div class="relative w-48 h-48 sm:w-64 sm:h-64 md:w-72 md:h-72 lg:w-80 lg:h-80 rounded-3xl overflow-hidden glass-panel p-2 transition-transform duration-300">
@@ -140,13 +136,11 @@
           </div>
         </div>
 
-        <!-- Track Title & Artist -->
         <div class="text-center mt-4 sm:mt-6 w-full px-4">
           <h1 id="track-title" class="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight text-white truncate">Connect Spotify</h1>
           <p id="track-artist" class="text-xs sm:text-sm lg:text-base text-white/60 truncate mt-1">Tap the Spotify badge above to authorize</p>
         </div>
 
-        <!-- Seek Bar -->
         <div class="w-full max-w-md mt-4 px-2">
           <input type="range" id="seek-bar" value="0" max="100" class="w-full" onchange="seekTrack(this.value)" />
           <div class="flex justify-between text-[10px] sm:text-xs text-white/50 mt-1 font-mono">
@@ -154,10 +148,9 @@
             <span id="time-total">0:00</span>
           </div>
         </div>
-
       </section>
 
-      <!-- RIGHT PANE: Integrated Queue/Playlist Dashboard on PC & Tablet -->
+      <!-- RIGHT PANE -->
       <aside class="hidden lg:flex lg:col-span-5 h-full max-h-[460px] glass-panel rounded-3xl p-5 flex-col overflow-hidden">
         <div class="flex items-center justify-between border-b border-white/10 pb-3 mb-3">
           <h2 class="text-sm font-bold flex items-center gap-2"><i class="ph ph-queue text-emerald-400"></i> Up Next</h2>
@@ -170,48 +163,40 @@
 
     </div>
 
-    <!-- Bottom Floating Control Island -->
+    <!-- Floating Control Island -->
     <footer class="w-full max-w-md lg:max-w-xl glass-panel rounded-3xl p-3 sm:p-4 mb-2 flex flex-col gap-3">
       <div class="flex items-center justify-between px-2">
-        
-        <!-- Like Song -->
         <button id="like-btn" onclick="toggleLike()" class="text-white/60 hover:text-rose-500 transition-colors">
           <i class="ph ph-heart text-xl"></i>
         </button>
 
-        <!-- Smart Shuffle Toggle -->
+        <!-- Smart Shuffle Button -->
         <button id="shuffle-btn" onclick="cycleShuffle()" class="text-white/60 hover:text-white transition-colors relative">
           <i class="ph ph-shuffle text-xl"></i>
           <span id="smart-shuffle-badge" class="hidden absolute -top-1 -right-2 text-[9px] bg-emerald-500 text-black font-bold px-1 rounded-full">✨</span>
         </button>
 
-        <!-- Previous -->
         <button onclick="prevTrack()" class="text-white/80 hover:text-white transition-transform active:scale-90">
           <i class="ph-fill ph-skip-back text-2xl"></i>
         </button>
 
-        <!-- Play/Pause -->
         <button onclick="togglePlay()" class="w-12 h-12 rounded-full bg-emerald-500 text-black flex items-center justify-center text-2xl shadow-lg shadow-emerald-500/30 hover:scale-105 active:scale-95 transition-all">
           <i id="play-icon" class="ph-fill ph-play"></i>
         </button>
 
-        <!-- Next -->
         <button onclick="nextTrack()" class="text-white/80 hover:text-white transition-transform active:scale-90">
           <i class="ph-fill ph-skip-forward text-2xl"></i>
         </button>
 
-        <!-- Repeat -->
         <button id="repeat-btn" onclick="cycleRepeat()" class="text-white/60 hover:text-white transition-colors">
           <i class="ph ph-repeat text-xl"></i>
         </button>
 
-        <!-- Device Picker Toggle -->
         <button onclick="openModal('device-modal')" class="text-white/60 hover:text-white transition-colors">
           <i class="ph ph-devices text-xl"></i>
         </button>
       </div>
 
-      <!-- Centered Volume Control Row -->
       <div class="flex items-center justify-center gap-3 px-4 pt-1 border-t border-white/10">
         <button id="mute-btn" onclick="toggleMute()" class="text-white/60 hover:text-white">
           <i id="mute-icon" class="ph ph-speaker-high text-lg"></i>
@@ -238,9 +223,7 @@
       <h3 class="text-xl font-bold mb-2 flex items-center gap-2">
         <i class="ph-fill ph-spotify text-emerald-400"></i> Spotify Integration
       </h3>
-      <p class="text-xs text-white/70 mb-4 leading-relaxed">
-        Connect your Spotify Premium account using your Client ID.
-      </p>
+      <p class="text-xs text-white/70 mb-4 leading-relaxed">Connect your Spotify Premium account using your Client ID.</p>
       
       <label class="block text-xs font-semibold mb-1 text-white/80">Client ID</label>
       <input type="text" id="client-id-input" placeholder="Paste Client ID here..." class="w-full bg-white/10 border border-white/20 rounded-xl p-2.5 text-xs text-white mb-3 focus:outline-none focus:border-emerald-400" />
@@ -275,20 +258,41 @@
 
   <div id="playlists-drawer" class="fixed inset-y-0 right-0 w-full max-w-md bg-black/80 backdrop-blur-2xl z-40 p-6 flex flex-col transform translate-x-full transition-transform duration-300">
     <div class="flex items-center justify-between mb-4">
-      <h2 class="text-lg font-bold flex items-center gap-2"><i class="ph ph-playlist"></i> Your Playlists</h2>
+      <div id="playlist-header-left" class="flex items-center gap-2">
+        <h2 class="text-lg font-bold flex items-center gap-2"><i class="ph ph-playlist"></i> Your Playlists</h2>
+      </div>
       <button onclick="toggleDrawer('playlists-drawer')" class="text-white/60 hover:text-white"><i class="ph ph-x text-xl"></i></button>
     </div>
+
     <div id="playlists-list" class="flex-1 overflow-y-auto flex flex-col gap-2">
       <p class="text-xs text-white/50 text-center py-4">Loading playlists...</p>
     </div>
+
+    <div id="playlist-detail" class="hidden flex-1 flex-col overflow-hidden">
+      <div class="flex items-center gap-3 bg-white/5 p-3 rounded-2xl mb-3">
+        <img id="playlist-detail-img" src="" class="w-14 h-14 rounded-xl object-cover" />
+        <div class="overflow-hidden flex-1">
+          <h3 id="playlist-detail-title" class="text-sm font-bold text-white truncate">Playlist Title</h3>
+          <p id="playlist-detail-subtitle" class="text-[10px] text-white/60 truncate">0 Tracks</p>
+          <div class="flex items-center gap-2 mt-2">
+            <button id="playlist-play-btn" class="px-3 py-1 bg-emerald-500 text-black font-bold text-xs rounded-full flex items-center gap-1 hover:bg-emerald-400">
+              <i class="ph-fill ph-play text-xs"></i> Play
+            </button>
+            <button id="playlist-shuffle-btn" class="px-3 py-1 glass-button text-white font-bold text-xs rounded-full flex items-center gap-1">
+              <i class="ph ph-shuffle text-xs"></i> Shuffle
+            </button>
+          </div>
+        </div>
+      </div>
+      <div id="playlist-tracks-list" class="flex-1 overflow-y-auto flex flex-col gap-2 pr-1"></div>
+    </div>
   </div>
 
-  <!-- JavaScript Logic -->
   <script>
     let isPlaying = false;
     let isMuted = false;
     let prevVolume = 70;
-    let shuffleState = 0;
+    let shuffleState = 0; // 0: off, 1: standard shuffle, 2: smart shuffle
     let repeatState = 0;
     let currentProgressMs = 0;
     let trackDurationMs = 0;
@@ -298,7 +302,7 @@
     const currentOrigin = window.location.origin + window.location.pathname;
     document.getElementById('redirect-uri-display').value = currentOrigin;
 
-    // Visualizer Canvas
+    // Canvas Visualizer
     const canvas = document.getElementById('visualizer');
     const ctx = canvas.getContext('2d');
     function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
@@ -318,7 +322,6 @@
     }
     drawVisualizer();
 
-    // UI Helpers
     function openModal(id) { 
       document.getElementById(id).classList.remove('hidden'); 
       if (id === 'device-modal') fetchDevices();
@@ -329,12 +332,11 @@
       drawer.classList.toggle('translate-x-full');
       if (!drawer.classList.contains('translate-x-full')) {
         if (id === 'queue-drawer') fetchQueue();
-        if (id === 'playlists-drawer') fetchPlaylists();
+        if (id === 'playlists-drawer') { showPlaylistsList(); fetchPlaylists(); }
         if (id === 'search-drawer') renderSearchHistory();
       }
     }
 
-    // Dynamic Artwork Color Extraction
     function extractColorAndApply(imgUrl) {
       const img = new Image();
       img.crossOrigin = 'Anonymous';
@@ -351,7 +353,7 @@
       };
     }
 
-    // Playback Controls
+    // Controls
     function togglePlay() {
       if (!accessToken) return openModal('setup-modal');
       const endpoint = isPlaying ? 'pause' : 'play';
@@ -401,25 +403,38 @@
       }
     }
 
+    // FIXED SMART SHUFFLE TOGGLE & API SYNC
     function cycleShuffle() {
       if (!accessToken) return openModal('setup-modal');
       shuffleState = (shuffleState + 1) % 3;
+      updateShuffleUI(shuffleState);
+
+      // Cycle between off, standard shuffle, and smart shuffle
+      let endpoint = `https://api.spotify.com/v1/me/player/shuffle?state=${shuffleState > 0}`;
+      if (shuffleState === 2) {
+        endpoint += '&smart_shuffle=true';
+      }
+
+      fetch(endpoint, {
+        method: 'PUT',
+        headers: { Authorization: `Bearer ${accessToken}` }
+      });
+    }
+
+    function updateShuffleUI(state) {
+      shuffleState = state;
       const btn = document.getElementById('shuffle-btn');
       const badge = document.getElementById('smart-shuffle-badge');
-      if (shuffleState === 0) {
+      if (state === 0) {
         btn.className = 'text-white/60 hover:text-white transition-colors relative';
         badge.classList.add('hidden');
-      } else if (shuffleState === 1) {
+      } else if (state === 1) {
         btn.className = 'text-emerald-400 transition-colors relative';
         badge.classList.add('hidden');
       } else {
         btn.className = 'text-emerald-400 transition-colors relative';
         badge.classList.remove('hidden');
       }
-      fetch(`https://api.spotify.com/v1/me/player/shuffle?state=${shuffleState > 0}`, {
-        method: 'PUT',
-        headers: { Authorization: `Bearer ${accessToken}` }
-      });
     }
 
     function cycleRepeat() {
@@ -465,7 +480,7 @@
       }).then(() => setTimeout(fetchPlaybackState, 400));
     }
 
-    function playContextUri(contextUri) {
+    function playContextUri(contextUri, offsetPosition = 0) {
       if (!accessToken) return openModal('setup-modal');
       fetch('https://api.spotify.com/v1/me/player/play', {
         method: 'PUT',
@@ -473,8 +488,20 @@
           Authorization: `Bearer ${accessToken}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ context_uri: contextUri })
+        body: JSON.stringify({ 
+          context_uri: contextUri,
+          offset: { position: offsetPosition }
+        })
       }).then(() => setTimeout(fetchPlaybackState, 400));
+    }
+
+    function shuffleContextUri(contextUri) {
+      if (!accessToken) return openModal('setup-modal');
+      updateShuffleUI(1);
+      fetch('https://api.spotify.com/v1/me/player/shuffle?state=true', {
+        method: 'PUT',
+        headers: { Authorization: `Bearer ${accessToken}` }
+      }).then(() => playContextUri(contextUri, 0));
     }
 
     function formatMs(ms) {
@@ -483,7 +510,6 @@
       return `${min}:${sec < 10 ? '0' : ''}${sec}`;
     }
 
-    // Spotify Real-Time Sync
     function fetchPlaybackState() {
       if (!accessToken) return;
       fetch('https://api.spotify.com/v1/me/player', {
@@ -493,6 +519,16 @@
       .then(data => {
         if (!data || !data.item) return;
         updatePlayStateUI(data.is_playing);
+        
+        // Sync shuffle state with official response
+        if (data.shuffle_state !== undefined) {
+          if (data.smart_shuffle_state) {
+            updateShuffleUI(2);
+          } else {
+            updateShuffleUI(data.shuffle_state ? 1 : 0);
+          }
+        }
+
         document.getElementById('track-title').textContent = data.item.name;
         document.getElementById('track-artist').textContent = data.item.artists.map(a => a.name).join(', ');
         
@@ -571,7 +607,12 @@
       });
     }
 
-    // FIXED PLAYLISTS FETCHING FUNCTION
+    function showPlaylistsList() {
+      document.getElementById('playlists-list').classList.remove('hidden');
+      document.getElementById('playlist-detail').classList.add('hidden');
+      document.getElementById('playlist-header-left').innerHTML = '<h2 class="text-lg font-bold flex items-center gap-2"><i class="ph ph-playlist"></i> Your Playlists</h2>';
+    }
+
     function fetchPlaylists() {
       const list = document.getElementById('playlists-list');
       if (!accessToken) {
@@ -585,7 +626,7 @@
       .then(res => res.json())
       .then(data => {
         if (!data.items || data.items.length === 0) {
-          list.innerHTML = '<p class="text-xs text-white/50 text-center py-4">No playlists found or missing permissions. Click setup to reconnect.</p>';
+          list.innerHTML = '<p class="text-xs text-white/50 text-center py-4">No playlists found.</p>';
           return;
         }
 
@@ -593,7 +634,7 @@
           const imgUrl = p.images && p.images.length > 0 ? p.images[0].url : 'https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?w=100&auto=format&fit=crop&q=80';
           const trackCount = p.tracks ? p.tracks.total : (p.items ? p.items.length : 0);
           return `
-            <div onclick="playContextUri('${p.uri}')" class="glass-button p-2.5 rounded-2xl flex items-center gap-3 cursor-pointer hover:border-emerald-500/50 transition-colors">
+            <div onclick="openPlaylistDetail('${p.id}', '${encodeURIComponent(p.name)}', '${encodeURIComponent(imgUrl)}', '${p.uri}', ${trackCount})" class="glass-button p-2.5 rounded-2xl flex items-center gap-3 cursor-pointer hover:border-emerald-500/50 transition-colors">
               <img src="${imgUrl}" class="w-10 h-10 rounded-xl object-cover" />
               <div class="overflow-hidden">
                 <p class="text-xs font-bold text-white truncate">${p.name}</p>
@@ -602,9 +643,59 @@
             </div>
           `;
         }).join('');
+      });
+    }
+
+    function openPlaylistDetail(playlistId, nameEnc, imgUrlEnc, playlistUri, trackCount) {
+      const name = decodeURIComponent(nameEnc);
+      const imgUrl = decodeURIComponent(imgUrlEnc);
+
+      document.getElementById('playlists-list').classList.add('hidden');
+      document.getElementById('playlist-detail').classList.remove('hidden');
+      document.getElementById('playlist-detail').classList.add('flex');
+
+      document.getElementById('playlist-header-left').innerHTML = `
+        <button onclick="showPlaylistsList()" class="glass-button p-1.5 rounded-full text-white/80 hover:text-white flex items-center justify-center">
+          <i class="ph ph-arrow-left text-base"></i>
+        </button>
+        <h2 class="text-sm font-bold text-white truncate max-w-[200px]">${name}</h2>
+      `;
+
+      document.getElementById('playlist-detail-img').src = imgUrl;
+      document.getElementById('playlist-detail-title').textContent = name;
+      document.getElementById('playlist-detail-subtitle').textContent = `${trackCount} Tracks`;
+
+      document.getElementById('playlist-play-btn').onclick = () => playContextUri(playlistUri, 0);
+      document.getElementById('playlist-shuffle-btn').onclick = () => shuffleContextUri(playlistUri);
+
+      const tracksList = document.getElementById('playlist-tracks-list');
+      tracksList.innerHTML = '<p class="text-xs text-white/50 text-center py-4">Loading tracks...</p>';
+
+      fetch(`https://api.spotify.com/v1/playlists/${playlistId}/tracks?limit=50`, {
+        headers: { Authorization: `Bearer ${accessToken}` }
       })
-      .catch(() => {
-        list.innerHTML = '<p class="text-xs text-white/50 text-center py-4">Failed to load playlists. Try reconnecting Spotify.</p>';
+      .then(res => res.json())
+      .then(data => {
+        if (!data.items?.length) {
+          tracksList.innerHTML = '<p class="text-xs text-white/50 text-center py-4">No tracks in this playlist.</p>';
+          return;
+        }
+
+        tracksList.innerHTML = data.items.map((item, idx) => {
+          const t = item.track;
+          if (!t) return '';
+          return `
+            <div onclick="playContextUri('${playlistUri}', ${idx})" class="glass-button p-2.5 rounded-2xl flex items-center gap-3 cursor-pointer hover:border-emerald-500/50 transition-colors">
+              <span class="text-xs text-white/40 font-mono w-4 text-center">${idx + 1}</span>
+              <img src="${t.album?.images[2]?.url || t.album?.images[0]?.url || imgUrl}" class="w-9 h-9 rounded-lg object-cover" />
+              <div class="overflow-hidden flex-1">
+                <p class="text-xs font-bold text-white truncate">${t.name}</p>
+                <p class="text-[10px] text-white/60 truncate">${t.artists ? t.artists.map(a => a.name).join(', ') : ''}</p>
+              </div>
+              <span class="text-[10px] text-white/40 font-mono">${formatMs(t.duration_ms || 0)}</span>
+            </div>
+          `;
+        }).join('');
       });
     }
 
@@ -649,7 +740,7 @@
       });
     }
 
-    // Spotify PKCE OAuth (Updated Scopes)
+    // Spotify PKCE Auth
     async function startSpotifyLogin() {
       const clientIdInput = document.getElementById('client-id-input').value.trim();
       const clientId = clientIdInput || localStorage.getItem('spotify_client_id');
@@ -717,7 +808,7 @@
       });
     }
 
-    // Initialization
+    // Init
     if (accessToken) {
       document.getElementById('connection-status').textContent = 'Connected';
       document.getElementById('status-dot').className = 'w-2 h-2 rounded-full bg-emerald-400';
