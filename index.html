@@ -358,7 +358,7 @@
     }
 
     function getDeviceParam() {
-      return activeDeviceId ? `?device_id=${activeDeviceId}` : '';
+      return activeDeviceId ? `?device_id=${encodeURIComponent(activeDeviceId)}` : '';
     }
 
     // Playback Controls
@@ -412,53 +412,52 @@
     }
 
     // LIKED TRACK CHECK
-    function checkIsTrackLiked(trackId) {
+    async function checkIsTrackLiked(trackId) {
       if (!accessToken || !trackId) return;
-      const uri = `spotify:track:${trackId}`;
-      fetch(`https://api.spotify.com/v1/me/library/contains?uris=${encodeURIComponent(uri)}`, {
-        headers: { Authorization: `Bearer ${accessToken}` }
-      })
-      .then(res => res.json())
-      .then(data => {
+      try {
+        const res = await fetch(`https://api.spotify.com/v1/me/library/contains?uris=${encodeURIComponent(`spotify:track:${trackId}`)}`, {
+          headers: { Authorization: `Bearer ${accessToken}` }
+        });
+        if (!res.ok) throw new Error(`Library check failed: ${res.status}`);
+        const data = await res.json();
         if (Array.isArray(data) && data.length > 0) {
-          isCurrentTrackLiked = data[0];
+          isCurrentTrackLiked = Boolean(data[0]);
           updateLikeUI(isCurrentTrackLiked);
         }
-      })
-      .catch(() => {
-        fetch(`https://api.spotify.com/v1/me/tracks/contains?ids=${trackId}`, {
-          headers: { Authorization: `Bearer ${accessToken}` }
-        })
-        .then(res => res.json())
-        .then(data => {
-          if (Array.isArray(data) && data.length > 0) {
-            isCurrentTrackLiked = data[0];
-            updateLikeUI(isCurrentTrackLiked);
-          }
-        });
-      });
+      } catch (error) {
+        console.error('Could not check liked state:', error);
+      }
     }
 
-    function toggleLike() {
+    async function toggleLike() {
       if (!accessToken) return openModal('setup-modal');
       if (!currentTrackId) return;
 
       const uri = `spotify:track:${currentTrackId}`;
       const method = isCurrentTrackLiked ? 'DELETE' : 'PUT';
-      
-      fetch('https://api.spotify.com/v1/me/library', {
-        method: method,
-        headers: { 
-          Authorization: `Bearer ${accessToken}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ uris: [uri] })
-      }).then(res => {
-        if (res.ok || res.status === 200) {
-          isCurrentTrackLiked = !isCurrentTrackLiked;
-          updateLikeUI(isCurrentTrackLiked);
+      const button = document.getElementById('like-btn');
+      button.disabled = true;
+
+      try {
+        const res = await fetch(`https://api.spotify.com/v1/me/library?uris=${encodeURIComponent(uri)}`, {
+          method,
+          headers: { Authorization: `Bearer ${accessToken}` }
+        });
+
+        if (!res.ok) {
+          const errorText = await res.text();
+          console.error('Like request failed:', res.status, errorText);
+          alert(`Spotify could not ${isCurrentTrackLiked ? 'remove this song from' : 'save this song to'} your library (${res.status}).`);
+          return;
         }
-      });
+
+        isCurrentTrackLiked = !isCurrentTrackLiked;
+        updateLikeUI(isCurrentTrackLiked);
+      } catch (error) {
+        console.error('Like request error:', error);
+      } finally {
+        button.disabled = false;
+      }
     }
 
     function updateLikeUI(liked) {
@@ -473,16 +472,21 @@
       }
     }
 
-    function cycleShuffle() {
+    async function cycleShuffle() {
       if (!accessToken) return openModal('setup-modal');
-      shuffleState = !shuffleState;
-      updateShuffleUI(shuffleState);
+      const nextState = !shuffleState;
+      const deviceParam = activeDeviceId ? `&device_id=${encodeURIComponent(activeDeviceId)}` : '';
 
-      const deviceParam = activeDeviceId ? `&device_id=${activeDeviceId}` : '';
-      fetch(`https://api.spotify.com/v1/me/player/shuffle?state=${shuffleState}${deviceParam}`, {
-        method: 'PUT',
-        headers: { Authorization: `Bearer ${accessToken}` }
-      });
+      try {
+        const res = await fetch(`https://api.spotify.com/v1/me/player/shuffle?state=${nextState}${deviceParam}`, {
+          method: 'PUT',
+          headers: { Authorization: `Bearer ${accessToken}` }
+        });
+        if (!res.ok) throw new Error(`Shuffle request failed: ${res.status}`);
+        updateShuffleUI(nextState);
+      } catch (error) {
+        console.error('Shuffle error:', error);
+      }
     }
 
     function updateShuffleUI(state) {
@@ -545,41 +549,109 @@
       }).then(() => setTimeout(fetchPlaybackState, 300));
     }
 
-    function playTrackUri(uri) {
-      if (!accessToken) return openModal('setup-modal');
-      fetch(`https://api.spotify.com/v1/me/player/play${getDeviceParam()}`, {
-        method: 'PUT',
-        headers: { 
-          Authorization: `Bearer ${accessToken}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ uris: [uri] })
-      }).then(() => setTimeout(fetchPlaybackState, 400));
+    async function refreshActiveDevice() {
+      if (!accessToken) return null;
+      try {
+        const res = await fetch('https://api.spotify.com/v1/me/player/devices', {
+          headers: { Authorization: `Bearer ${accessToken}` }
+        });
+        if (!res.ok) return null;
+        const data = await res.json();
+        const device = data.devices?.find(d => d.is_active) || data.devices?.[0] || null;
+        if (device) activeDeviceId = device.id;
+        return device;
+      } catch (error) {
+        console.error('Device refresh error:', error);
+        return null;
+      }
     }
 
-    function playContextUri(contextUri, offsetPosition = 0) {
+    async function playTrackUri(uri) {
       if (!accessToken) return openModal('setup-modal');
-      fetch(`https://api.spotify.com/v1/me/player/play${getDeviceParam()}`, {
-        method: 'PUT',
-        headers: { 
-          Authorization: `Bearer ${accessToken}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ 
-          context_uri: contextUri,
-          offset: { position: offsetPosition }
-        })
-      }).then(() => setTimeout(fetchPlaybackState, 400));
+      if (!uri) return;
+
+      try {
+        // Spotify can reject playback when no active device is known.
+        // Refresh the device list immediately before starting a selected song.
+        const deviceRes = await fetch('https://api.spotify.com/v1/me/player/devices', {
+          headers: { Authorization: `Bearer ${accessToken}` }
+        });
+
+        if (deviceRes.ok) {
+          const deviceData = await deviceRes.json();
+          const activeDev = deviceData.devices?.find(d => d.is_active) || deviceData.devices?.[0];
+          if (activeDev) activeDeviceId = activeDev.id;
+        }
+
+        const res = await fetch(`https://api.spotify.com/v1/me/player/play${getDeviceParam()}`, {
+          method: 'PUT',
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ uris: [uri] })
+        });
+
+        if (!res.ok) {
+          const errorText = await res.text();
+          console.error('Playback failed:', res.status, errorText);
+          alert(`Spotify could not start this song (${res.status}). Make sure Spotify is open on a playable device.`);
+          return;
+        }
+
+        setTimeout(fetchPlaybackState, 500);
+      } catch (error) {
+        console.error('Playback error:', error);
+      }
     }
 
-    function shuffleContextUri(contextUri) {
+    async function playContextUri(contextUri, offsetPosition = 0) {
       if (!accessToken) return openModal('setup-modal');
-      updateShuffleUI(true);
-      const deviceParam = activeDeviceId ? `&device_id=${activeDeviceId}` : '';
-      fetch(`https://api.spotify.com/v1/me/player/shuffle?state=true${deviceParam}`, {
-        method: 'PUT',
-        headers: { Authorization: `Bearer ${accessToken}` }
-      }).then(() => playContextUri(contextUri, 0));
+      if (!contextUri) return;
+
+      try {
+        await refreshActiveDevice();
+        const res = await fetch(`https://api.spotify.com/v1/me/player/play${getDeviceParam()}`, {
+          method: 'PUT',
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            context_uri: contextUri,
+            offset: { position: offsetPosition }
+          })
+        });
+
+        if (!res.ok) {
+          const errorText = await res.text();
+          console.error('Context playback failed:', res.status, errorText);
+          alert(`Spotify could not start this playlist (${res.status}).`);
+          return;
+        }
+        setTimeout(fetchPlaybackState, 500);
+      } catch (error) {
+        console.error('Context playback error:', error);
+      }
+    }
+
+    async function shuffleContextUri(contextUri) {
+      if (!accessToken) return openModal('setup-modal');
+      if (!contextUri) return;
+
+      try {
+        await refreshActiveDevice();
+        const deviceParam = activeDeviceId ? `&device_id=${encodeURIComponent(activeDeviceId)}` : '';
+        const shuffleRes = await fetch(`https://api.spotify.com/v1/me/player/shuffle?state=true${deviceParam}`, {
+          method: 'PUT',
+          headers: { Authorization: `Bearer ${accessToken}` }
+        });
+        if (!shuffleRes.ok) throw new Error(`Shuffle request failed: ${shuffleRes.status}`);
+        updateShuffleUI(true);
+        await playContextUri(contextUri, 0);
+      } catch (error) {
+        console.error('Shuffle playback error:', error);
+      }
     }
 
     function formatMs(ms) {
@@ -708,26 +780,35 @@
       document.getElementById('playlist-header-left').innerHTML = '<h2 class="text-lg font-bold flex items-center gap-2"><i class="ph ph-playlist"></i> Your Playlists</h2>';
     }
 
-    function fetchPlaylists() {
+    async function fetchPlaylists() {
       const list = document.getElementById('playlists-list');
       if (!accessToken) {
         list.innerHTML = '<p class="text-xs text-white/50 text-center py-4">Connect Spotify to view your playlists.</p>';
         return;
       }
 
-      fetch('https://api.spotify.com/v1/me/playlists?limit=50', {
-        headers: { Authorization: `Bearer ${accessToken}` }
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (!data.items || data.items.length === 0) {
+      list.innerHTML = '<p class="text-xs text-white/50 text-center py-4">Loading playlists...</p>';
+
+      try {
+        const items = [];
+        let url = 'https://api.spotify.com/v1/me/playlists?limit=50';
+
+        while (url) {
+          const res = await fetch(url, { headers: { Authorization: `Bearer ${accessToken}` } });
+          if (!res.ok) throw new Error(`Playlist request failed: ${res.status}`);
+          const data = await res.json();
+          items.push(...(data.items || []));
+          url = data.next || null;
+        }
+
+        if (!items.length) {
           list.innerHTML = '<p class="text-xs text-white/50 text-center py-4">No playlists found.</p>';
           return;
         }
 
-        list.innerHTML = data.items.map(p => {
-          const imgUrl = p.images && p.images.length > 0 ? p.images[0].url : 'https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?w=100&auto=format&fit=crop&q=80';
-          const trackCount = p.tracks ? p.tracks.total : (p.items ? (p.items.total || p.items.length) : 0);
+        list.innerHTML = items.map(p => {
+          const imgUrl = p.images?.[0]?.url || 'https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?w=100&auto=format&fit=crop&q=80';
+          const trackCount = p.items?.total ?? p.tracks?.total ?? 0;
           return `
             <div onclick="openPlaylistDetail('${p.id}', '${encodeURIComponent(p.name)}', '${encodeURIComponent(imgUrl)}', '${p.uri}', ${trackCount})" class="glass-button p-2.5 rounded-2xl flex items-center gap-3 cursor-pointer hover:border-emerald-500/50 transition-colors">
               <img src="${imgUrl}" class="w-10 h-10 rounded-xl object-cover" />
@@ -738,10 +819,13 @@
             </div>
           `;
         }).join('');
-      });
+      } catch (error) {
+        console.error('Playlist loading error:', error);
+        list.innerHTML = '<p class="text-xs text-rose-400 text-center py-4">Could not load playlists. Check your Spotify permissions.</p>';
+      }
     }
 
-    function openPlaylistDetail(playlistId, nameEnc, imgUrlEnc, playlistUri, trackCount) {
+    async function openPlaylistDetail(playlistId, nameEnc, imgUrlEnc, playlistUri, trackCount) {
       const name = decodeURIComponent(nameEnc);
       const imgUrl = decodeURIComponent(imgUrlEnc);
 
@@ -759,45 +843,53 @@
       document.getElementById('playlist-detail-img').src = imgUrl;
       document.getElementById('playlist-detail-title').textContent = name;
       document.getElementById('playlist-detail-subtitle').textContent = `${trackCount} Tracks`;
-
       document.getElementById('playlist-play-btn').onclick = () => playContextUri(playlistUri, 0);
       document.getElementById('playlist-shuffle-btn').onclick = () => shuffleContextUri(playlistUri);
 
       const tracksList = document.getElementById('playlist-tracks-list');
-      tracksList.innerHTML = '<p class="text-xs text-white/50 text-center py-4">Loading tracks...</p>';
+      tracksList.innerHTML = '<p class="text-xs text-white/50 text-center py-4">Loading all tracks...</p>';
 
-      const fetchItems = (endpoint) => {
-        fetch(endpoint, { headers: { Authorization: `Bearer ${accessToken}` } })
-        .then(res => res.json())
-        .then(data => {
-          const rawItems = data.items || data.tracks?.items;
-          if (!rawItems || !rawItems.length) {
-            tracksList.innerHTML = '<p class="text-xs text-white/50 text-center py-4">No tracks in this playlist.</p>';
-            return;
+      try {
+        const allItems = [];
+        let url = `https://api.spotify.com/v1/playlists/${playlistId}/items?limit=50`;
+
+        while (url) {
+          const res = await fetch(url, { headers: { Authorization: `Bearer ${accessToken}` } });
+          if (!res.ok) {
+            const message = res.status === 403
+              ? 'Spotify only allows this playlist to be read if you own it or collaborate on it.'
+              : `Spotify returned ${res.status} while loading this playlist.`;
+            throw new Error(message);
           }
+          const data = await res.json();
+          allItems.push(...(data.items || []));
+          url = data.next || null;
+        }
 
-          tracksList.innerHTML = rawItems.map((itemObj, idx) => {
-            const t = itemObj.track || itemObj.item;
-            if (!t) return '';
-            return `
-              <div onclick="playContextUri('${playlistUri}', ${idx})" class="glass-button p-2.5 rounded-2xl flex items-center gap-3 cursor-pointer hover:border-emerald-500/50 transition-colors">
-                <span class="text-xs text-white/40 font-mono w-4 text-center">${idx + 1}</span>
-                <img src="${t.album?.images[2]?.url || t.album?.images[0]?.url || imgUrl}" class="w-9 h-9 rounded-lg object-cover" />
-                <div class="overflow-hidden flex-1">
-                  <p class="text-xs font-bold text-white truncate">${t.name}</p>
-                  <p class="text-[10px] text-white/60 truncate">${t.artists ? t.artists.map(a => a.name).join(', ') : ''}</p>
-                </div>
-                <span class="text-[10px] text-white/40 font-mono">${formatMs(t.duration_ms || 0)}</span>
-              </div>
-            `;
-          }).join('');
-        })
-        .catch(() => {
-          tracksList.innerHTML = '<p class="text-xs text-white/50 text-center py-4">Failed to load tracks.</p>';
-        });
-      };
+        const tracks = allItems
+          .map(item => item.item || item.track)
+          .filter(t => t && t.type === 'track' && t.uri);
 
-      fetchItems(`https://api.spotify.com/v1/playlists/${playlistId}/items?limit=50`);
+        if (!tracks.length) {
+          tracksList.innerHTML = '<p class="text-xs text-white/50 text-center py-4">No playable tracks in this playlist.</p>';
+          return;
+        }
+
+        tracksList.innerHTML = tracks.map((t, idx) => `
+          <div onclick="playTrackUri('${t.uri}')" class="glass-button p-2.5 rounded-2xl flex items-center gap-3 cursor-pointer hover:border-emerald-500/50 transition-colors">
+            <span class="text-xs text-white/40 font-mono w-5 text-center">${idx + 1}</span>
+            <img src="${t.album?.images?.[2]?.url || t.album?.images?.[0]?.url || imgUrl}" class="w-9 h-9 rounded-lg object-cover" />
+            <div class="overflow-hidden flex-1">
+              <p class="text-xs font-bold text-white truncate">${t.name}</p>
+              <p class="text-[10px] text-white/60 truncate">${t.artists?.map(a => a.name).join(', ') || ''}</p>
+            </div>
+            <span class="text-[10px] text-white/40 font-mono">${formatMs(t.duration_ms || 0)}</span>
+          </div>
+        `).join('');
+      } catch (error) {
+        console.error('Playlist track loading error:', error);
+        tracksList.innerHTML = `<p class="text-xs text-rose-400 text-center py-4 px-4">${error.message || 'Failed to load tracks.'}</p>`;
+      }
     }
 
     function renderSearchHistory() {
@@ -814,7 +906,7 @@
       }
     }
 
-    function executeSearch(query) {
+    async function executeSearch(query) {
       document.getElementById('search-input').value = query;
       if (!searchHistory.includes(query)) {
         searchHistory.unshift(query);
@@ -822,23 +914,62 @@
         localStorage.setItem('search_history', JSON.stringify(searchHistory));
         renderSearchHistory();
       }
-      if (!accessToken) return;
-      fetch(`https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=track&limit=10`, {
-        headers: { Authorization: `Bearer ${accessToken}` }
-      })
-      .then(res => res.json())
-      .then(data => {
-        const results = document.getElementById('search-results');
-        results.innerHTML = data.tracks.items.map(t => `
+      if (!accessToken) return openModal('setup-modal');
+
+      const results = document.getElementById('search-results');
+      results.innerHTML = '<p class="text-xs text-white/50 text-center py-4">Searching...</p>';
+
+      try {
+        // Fetch several result pages so exact title matches are not buried by the first 10 results.
+        const pages = await Promise.all([0, 10, 20].map(offset =>
+          fetch(`https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=track&limit=10&offset=${offset}`, {
+            headers: { Authorization: `Bearer ${accessToken}` }
+          }).then(async res => {
+            if (!res.ok) throw new Error(`Search failed: ${res.status}`);
+            return res.json();
+          })
+        ));
+
+        const tracks = pages.flatMap(data => data.tracks?.items || []);
+        const q = query.trim().toLowerCase();
+
+        const scoreTrack = (track) => {
+          const title = (track.name || '').toLowerCase().trim();
+          const artists = (track.artists || []).map(a => (a.name || '').toLowerCase()).join(' ');
+          let score = Number(track.popularity || 0) * 0.25;
+
+          if (title === q) score += 10000;
+          else if (title.startsWith(q)) score += 5000;
+          else if (title.includes(q)) score += 2500;
+          if (artists === q) score += 3000;
+          else if (artists.startsWith(q)) score += 1500;
+          else if (artists.includes(q)) score += 750;
+
+          return score;
+        };
+
+        const uniqueTracks = [...new Map(tracks.map(t => [t.id, t])).values()];
+        uniqueTracks.sort((a, b) => scoreTrack(b) - scoreTrack(a));
+
+        if (!uniqueTracks.length) {
+          results.innerHTML = '<p class="text-xs text-white/50 text-center py-4">No songs found.</p>';
+          return;
+        }
+
+        results.innerHTML = uniqueTracks.map(t => `
           <div onclick="playTrackUri('${t.uri}')" class="glass-button p-2.5 rounded-2xl flex items-center gap-3 cursor-pointer hover:border-emerald-500/50 transition-colors">
-            <img src="${t.album.images[2]?.url || ''}" class="w-10 h-10 rounded-xl object-cover" />
-            <div class="overflow-hidden">
+            <img src="${t.album?.images?.[2]?.url || t.album?.images?.[0]?.url || ''}" class="w-10 h-10 rounded-xl object-cover" />
+            <div class="overflow-hidden flex-1">
               <p class="text-xs font-bold text-white truncate">${t.name}</p>
-              <p class="text-[10px] text-white/60 truncate">${t.artists.map(a => a.name).join(', ')}</p>
+              <p class="text-[10px] text-white/60 truncate">${t.artists?.map(a => a.name).join(', ') || ''}</p>
             </div>
+            ${t.popularity != null ? `<span class="text-[9px] text-white/30 font-mono">${t.popularity}%</span>` : ''}
           </div>
         `).join('');
-      });
+      } catch (error) {
+        console.error('Search error:', error);
+        results.innerHTML = '<p class="text-xs text-rose-400 text-center py-4">Search failed. Please try again.</p>';
+      }
     }
 
     // Spotify PKCE Auth Setup
