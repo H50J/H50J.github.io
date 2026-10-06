@@ -166,8 +166,9 @@
     <!-- Floating Control Island -->
     <footer class="w-full max-w-md lg:max-w-xl glass-panel rounded-3xl p-3 sm:p-4 mb-2 flex flex-col gap-3">
       <div class="flex items-center justify-between px-2">
+        <!-- Working Heart/Like Button -->
         <button id="like-btn" onclick="toggleLike()" class="text-white/60 hover:text-rose-500 transition-colors">
-          <i class="ph ph-heart text-xl"></i>
+          <i id="like-icon" class="ph ph-heart text-xl"></i>
         </button>
 
         <!-- Smart Shuffle Button -->
@@ -188,8 +189,10 @@
           <i class="ph-fill ph-skip-forward text-2xl"></i>
         </button>
 
-        <button id="repeat-btn" onclick="cycleRepeat()" class="text-white/60 hover:text-white transition-colors">
-          <i class="ph ph-repeat text-xl"></i>
+        <!-- Repeat Button with "1" Badge -->
+        <button id="repeat-btn" onclick="cycleRepeat()" class="text-white/60 hover:text-white transition-colors relative">
+          <i id="repeat-icon" class="ph ph-repeat text-xl"></i>
+          <span id="repeat-one-badge" class="hidden absolute -top-1 -right-2 text-[9px] bg-emerald-500 text-black font-bold w-3.5 h-3.5 rounded-full flex items-center justify-center">1</span>
         </button>
 
         <button onclick="openModal('device-modal')" class="text-white/60 hover:text-white transition-colors">
@@ -291,9 +294,11 @@
   <script>
     let isPlaying = false;
     let isMuted = false;
+    let isCurrentTrackLiked = false;
+    let currentTrackId = null;
     let prevVolume = 70;
-    let shuffleState = 0; // 0: off, 1: standard shuffle, 2: smart shuffle
-    let repeatState = 0;
+    let shuffleState = 0; // 0: off, 1: standard, 2: smart
+    let repeatState = 0;  // 0: off, 1: context, 2: track (repeat 1)
     let currentProgressMs = 0;
     let trackDurationMs = 0;
     let accessToken = localStorage.getItem('spotify_access_token') || null;
@@ -302,7 +307,7 @@
     const currentOrigin = window.location.origin + window.location.pathname;
     document.getElementById('redirect-uri-display').value = currentOrigin;
 
-    // Canvas Visualizer
+    // Visualizer Canvas
     const canvas = document.getElementById('visualizer');
     const ctx = canvas.getContext('2d');
     function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
@@ -353,7 +358,7 @@
       };
     }
 
-    // Controls
+    // Playback Controls
     function togglePlay() {
       if (!accessToken) return openModal('setup-modal');
       const endpoint = isPlaying ? 'pause' : 'play';
@@ -403,17 +408,57 @@
       }
     }
 
-    // FIXED SMART SHUFFLE TOGGLE & API SYNC
+    // REAL SPOTIFY LIKED SONGS TOGGLE
+    function checkIsTrackLiked(trackId) {
+      if (!accessToken || !trackId) return;
+      fetch(`https://api.spotify.com/v1/me/tracks/contains?ids=${trackId}`, {
+        headers: { Authorization: `Bearer ${accessToken}` }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) {
+          isCurrentTrackLiked = data[0];
+          updateLikeUI(isCurrentTrackLiked);
+        }
+      });
+    }
+
+    function toggleLike() {
+      if (!accessToken) return openModal('setup-modal');
+      if (!currentTrackId) return;
+
+      const method = isCurrentTrackLiked ? 'DELETE' : 'PUT';
+      fetch(`https://api.spotify.com/v1/me/tracks?ids=${currentTrackId}`, {
+        method: method,
+        headers: { Authorization: `Bearer ${accessToken}` }
+      }).then(res => {
+        if (res.ok || res.status === 200) {
+          isCurrentTrackLiked = !isCurrentTrackLiked;
+          updateLikeUI(isCurrentTrackLiked);
+        }
+      });
+    }
+
+    function updateLikeUI(liked) {
+      const icon = document.getElementById('like-icon');
+      const btn = document.getElementById('like-btn');
+      if (liked) {
+        icon.className = 'ph-fill ph-heart text-xl text-rose-500';
+        btn.className = 'text-rose-500 transition-colors';
+      } else {
+        icon.className = 'ph ph-heart text-xl';
+        btn.className = 'text-white/60 hover:text-rose-500 transition-colors';
+      }
+    }
+
+    // SHUFFLE & REPEAT 1 WITH BADGE
     function cycleShuffle() {
       if (!accessToken) return openModal('setup-modal');
       shuffleState = (shuffleState + 1) % 3;
       updateShuffleUI(shuffleState);
 
-      // Cycle between off, standard shuffle, and smart shuffle
       let endpoint = `https://api.spotify.com/v1/me/player/shuffle?state=${shuffleState > 0}`;
-      if (shuffleState === 2) {
-        endpoint += '&smart_shuffle=true';
-      }
+      if (shuffleState === 2) endpoint += '&smart_shuffle=true';
 
       fetch(endpoint, {
         method: 'PUT',
@@ -440,16 +485,34 @@
     function cycleRepeat() {
       if (!accessToken) return openModal('setup-modal');
       repeatState = (repeatState + 1) % 3;
+      updateRepeatUI(repeatState);
+
       const modes = ['off', 'context', 'track'];
-      document.getElementById('repeat-btn').className = repeatState === 0 ? 'text-white/60 hover:text-white' : 'text-emerald-400';
       fetch(`https://api.spotify.com/v1/me/player/repeat?state=${modes[repeatState]}`, {
         method: 'PUT',
         headers: { Authorization: `Bearer ${accessToken}` }
       });
     }
 
-    function toggleLike() {
-      document.getElementById('like-btn').classList.toggle('text-rose-500');
+    function updateRepeatUI(state) {
+      repeatState = state;
+      const btn = document.getElementById('repeat-btn');
+      const icon = document.getElementById('repeat-icon');
+      const badge = document.getElementById('repeat-one-badge');
+
+      if (state === 0) { // Off
+        btn.className = 'text-white/60 hover:text-white transition-colors relative';
+        icon.className = 'ph ph-repeat text-xl';
+        badge.classList.add('hidden');
+      } else if (state === 1) { // Repeat Playlist/Context
+        btn.className = 'text-emerald-400 transition-colors relative';
+        icon.className = 'ph ph-repeat text-xl';
+        badge.classList.add('hidden');
+      } else { // Repeat 1 (Single Track)
+        btn.className = 'text-emerald-400 transition-colors relative';
+        icon.className = 'ph ph-repeat-once text-xl';
+        badge.classList.remove('hidden');
+      }
     }
 
     function nextTrack() {
@@ -510,6 +573,7 @@
       return `${min}:${sec < 10 ? '0' : ''}${sec}`;
     }
 
+    // SPOTIFY PLAYER SYNC
     function fetchPlaybackState() {
       if (!accessToken) return;
       fetch('https://api.spotify.com/v1/me/player', {
@@ -520,13 +584,25 @@
         if (!data || !data.item) return;
         updatePlayStateUI(data.is_playing);
         
-        // Sync shuffle state with official response
+        // Sync Repeat State
+        if (data.repeat_state) {
+          const rMode = data.repeat_state;
+          updateRepeatUI(rMode === 'track' ? 2 : (rMode === 'context' ? 1 : 0));
+        }
+
+        // Sync Shuffle State
         if (data.shuffle_state !== undefined) {
           if (data.smart_shuffle_state) {
             updateShuffleUI(2);
           } else {
             updateShuffleUI(data.shuffle_state ? 1 : 0);
           }
+        }
+
+        // Check Track ID & Heart status
+        if (currentTrackId !== data.item.id) {
+          currentTrackId = data.item.id;
+          checkIsTrackLiked(currentTrackId);
         }
 
         document.getElementById('track-title').textContent = data.item.name;
@@ -740,7 +816,7 @@
       });
     }
 
-    // Spotify PKCE Auth
+    // Spotify PKCE OAuth
     async function startSpotifyLogin() {
       const clientIdInput = document.getElementById('client-id-input').value.trim();
       const clientId = clientIdInput || localStorage.getItem('spotify_client_id');
@@ -752,7 +828,7 @@
       localStorage.setItem('spotify_client_id', clientId);
       localStorage.setItem('code_verifier', verifier);
 
-      const scopes = 'user-read-playback-state user-modify-playback-state user-read-currently-playing playlist-read-private playlist-read-collaborative user-library-read';
+      const scopes = 'user-read-playback-state user-modify-playback-state user-read-currently-playing playlist-read-private playlist-read-collaborative user-library-read user-library-modify';
 
       const params = new URLSearchParams({
         client_id: clientId,
