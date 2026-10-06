@@ -5,14 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <title>Liquid Glass Spotify Controller</title>
   
-  <!-- Tailwind CSS -->
+  <!-- Spotify Favicon -->
+  <link rel="icon" type="image/svg+xml" href="https://upload.wikimedia.org/wikipedia/commons/1/19/Spotify_logo_without_text.svg" />
+  
+  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   
-  <!-- Icons (Phosphor & FontAwesome) -->
+  <!-- Icons (Phosphor Icons & FontAwesome) -->
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
-  <!-- Google Fonts -->
+  <!-- Google Fonts: Plus Jakarta Sans -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -37,8 +40,8 @@
           keyframes: {
             blob: {
               '0%, 100%': { transform: 'translate(0px, 0px) scale(1)' },
-              '33%': { transform: 'translate(80px, -90px) scale(1.18)' },
-              '66%': { transform: 'translate(-50px, 60px) scale(0.88)' },
+              '33%': { transform: 'translate(60px, -70px) scale(1.15)' },
+              '66%': { transform: 'translate(-40px, 50px) scale(0.9)' },
             }
           }
         }
@@ -54,41 +57,49 @@
       height: 100dvh;
       overflow: hidden;
       background-color: #030712;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
     }
 
+    .safe-top { padding-top: max(0.75rem, env(safe-area-inset-top)); }
+    .safe-bottom { padding-bottom: max(1rem, env(safe-area-inset-bottom)); }
+
     .glass-panel {
-      background: rgba(255, 255, 255, 0.07);
-      backdrop-filter: blur(32px) saturate(210%);
-      -webkit-backdrop-filter: blur(32px) saturate(210%);
-      border: 1px solid rgba(255, 255, 255, 0.16);
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(28px) saturate(210%);
+      -webkit-backdrop-filter: blur(28px) saturate(210%);
+      border: 1px solid rgba(255, 255, 255, 0.18);
       box-shadow: 
-        0 25px 60px rgba(0, 0, 0, 0.6),
+        0 20px 50px rgba(0, 0, 0, 0.65),
         inset 0 1px 1px rgba(255, 255, 255, 0.4),
-        inset 0 -1px 1px rgba(0, 0, 0, 0.3);
+        inset 0 -1px 1px rgba(0, 0, 0, 0.35);
     }
 
     .glass-button {
-      background: rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.09);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: 0 4px 15px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.35);
-    }
-
-    .glass-button:hover {
-      background: rgba(255, 255, 255, 0.22);
-      border-color: rgba(255, 255, 255, 0.5);
-      transform: translateY(-2px) scale(1.02);
-      box-shadow: 0 8px 25px rgba(255,255,255,0.22), inset 0 1px 0 rgba(255,255,255,0.6);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.4);
     }
 
     .glass-button:active {
-      transform: translateY(1px) scale(0.97);
+      transform: scale(0.94);
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    @media (min-width: 768px) {
+      .glass-button:hover {
+        background: rgba(255, 255, 255, 0.22);
+        border-color: rgba(255, 255, 255, 0.5);
+        transform: translateY(-2px) scale(1.02);
+        box-shadow: 0 8px 25px rgba(255,255,255,0.22), inset 0 1px 0 rgba(255,255,255,0.6);
+      }
     }
 
     .glass-pill {
-      background: rgba(255, 255, 255, 0.09);
+      background: rgba(255, 255, 255, 0.1);
       backdrop-filter: blur(24px) saturate(180%);
       -webkit-backdrop-filter: blur(24px) saturate(180%);
       border: 1px solid rgba(255, 255, 255, 0.22);
@@ -96,44 +107,42 @@
     }
 
     .glass-input {
-      background: rgba(0, 0, 0, 0.4);
+      background: rgba(0, 0, 0, 0.45);
       backdrop-filter: blur(16px);
-      border: 1px solid rgba(255, 255, 255, 0.18);
+      border: 1px solid rgba(255, 255, 255, 0.2);
     }
 
     ::-webkit-scrollbar {
-      width: 5px;
+      width: 4px;
     }
     ::-webkit-scrollbar-track {
-      background: rgba(0, 0, 0, 0.1);
+      background: transparent;
     }
     ::-webkit-scrollbar-thumb {
       background: rgba(255, 255, 255, 0.25);
       border-radius: 999px;
     }
-    ::-webkit-scrollbar-thumb:hover {
-      background: rgba(255, 255, 255, 0.45);
-    }
 
     input[type=range] {
       -webkit-appearance: none;
       background: transparent;
+      touch-action: none;
     }
 
     input[type=range]::-webkit-slider-thumb {
       -webkit-appearance: none;
-      height: 16px;
-      width: 16px;
+      height: 18px;
+      width: 18px;
       border-radius: 50%;
       background: #ffffff;
       cursor: pointer;
-      box-shadow: 0 0 12px rgba(255,255,255,0.9), 0 0 20px rgba(29, 185, 84, 0.8);
-      margin-top: -6px;
+      box-shadow: 0 0 12px rgba(255,255,255,0.9), 0 0 18px rgba(29, 185, 84, 0.8);
+      margin-top: -7px;
       transition: transform 0.15s ease, background-color 0.15s ease;
     }
 
-    input[type=range]::-webkit-slider-thumb:hover {
-      transform: scale(1.35);
+    input[type=range]::-webkit-slider-thumb:active {
+      transform: scale(1.4);
       background: #1DB954;
     }
 
@@ -146,8 +155,8 @@
     }
 
     .tab-active {
-      background: rgba(255, 255, 255, 0.2) !important;
-      border-color: rgba(255, 255, 255, 0.4) !important;
+      background: rgba(255, 255, 255, 0.22) !important;
+      border-color: rgba(255, 255, 255, 0.45) !important;
       color: #1DB954 !important;
       font-weight: 700;
     }
@@ -159,144 +168,139 @@
 </head>
 <body class="h-[100dvh] w-vw bg-slate-950 text-white font-sans antialiased select-none overflow-hidden relative p-0 m-0">
 
-  <!-- Dynamic Animated Fluid Blobs -->
   <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-    <div id="blob1" class="dynamic-blob absolute -top-32 -left-32 w-[500px] md:w-[750px] h-[500px] md:h-[750px] bg-purple-600/35 rounded-full blur-[110px] md:blur-[160px] animate-blob-slow"></div>
-    <div id="blob2" class="dynamic-blob absolute top-1/3 -right-32 w-[400px] md:w-[650px] h-[400px] md:h-[650px] bg-emerald-500/30 rounded-full blur-[100px] md:blur-[140px] animate-blob-medium"></div>
-    <div id="blob3" class="dynamic-blob absolute -bottom-32 left-1/3 w-[450px] md:w-[700px] h-[450px] md:h-[700px] bg-blue-600/30 rounded-full blur-[110px] md:blur-[160px] animate-blob-fast"></div>
+    <div id="blob1" class="dynamic-blob absolute -top-24 -left-24 w-[380px] sm:w-[600px] h-[380px] sm:h-[600px] bg-purple-600/35 rounded-full blur-[90px] sm:blur-[150px] animate-blob-slow"></div>
+    <div id="blob2" class="dynamic-blob absolute top-1/3 -right-24 w-[320px] sm:w-[500px] h-[320px] sm:h-[500px] bg-emerald-500/30 rounded-full blur-[80px] sm:blur-[130px] animate-blob-medium"></div>
+    <div id="blob3" class="dynamic-blob absolute -bottom-24 left-1/4 w-[350px] sm:w-[550px] h-[350px] sm:h-[550px] bg-blue-600/30 rounded-full blur-[90px] sm:blur-[150px] animate-blob-fast"></div>
 
-    <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/80 backdrop-blur-[1px]"></div>
+    <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/85 backdrop-blur-[1px]"></div>
   </div>
 
-  <!-- Top-Left Floating Pills -->
-  <div class="fixed top-3 left-3 sm:top-5 sm:left-5 z-30 flex flex-wrap items-center gap-2 max-w-[calc(100vw-180px)] sm:max-w-md">
-    <div class="glass-pill rounded-full px-3 py-1.5 sm:px-3.5 sm:py-2 flex items-center gap-2 shadow-xl border border-white/20 transition-all duration-300 hover:border-white/40">
-      <div class="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-gradient-to-tr from-spotify via-emerald-400 to-teal-300 flex items-center justify-center shadow-md shadow-spotify/30 flex-shrink-0">
-        <i class="fa-brands fa-spotify text-black text-[10px] sm:text-xs"></i>
+  <div class="fixed top-0 left-0 right-0 z-30 flex items-center justify-between px-3 sm:px-6 pt-3 sm:pt-5 safe-top pointer-events-none">
+    
+    <!-- Top-Left Compact Connection Status -->
+    <div class="pointer-events-auto flex items-center gap-2">
+      <div class="glass-pill rounded-full px-3 py-1.5 flex items-center gap-2 shadow-xl border border-white/20">
+        <div class="w-5 h-5 rounded-full bg-gradient-to-tr from-spotify via-emerald-400 to-teal-300 flex items-center justify-center shadow-md shadow-spotify/30 flex-shrink-0">
+          <i class="fa-brands fa-spotify text-black text-[10px]"></i>
+        </div>
+        <span id="connection-status-text" class="text-[10px] sm:text-xs font-bold text-slate-100 flex items-center gap-1.5 whitespace-nowrap">
+          <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping"></span>
+          Demo
+        </span>
       </div>
-      <span id="connection-status-text" class="text-[10px] sm:text-[11px] font-bold text-slate-100 flex items-center gap-1.5 whitespace-nowrap">
-        <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping"></span>
-        Demo Mode
-      </span>
     </div>
 
-    <button id="quick-device-pill" class="glass-pill rounded-full px-3 py-1.5 sm:px-3.5 sm:py-2 flex items-center gap-2 shadow-xl border border-emerald-500/30 hover:border-emerald-400/60 transition-all duration-300 text-emerald-300 text-[10px] sm:text-[11px] font-semibold cursor-pointer">
-      <i class="ph ph-speaker-high text-xs sm:text-sm text-spotify"></i>
-      <span id="current-device-name" class="truncate max-w-[100px] sm:max-w-[140px]">Demo Player</span>
-    </button>
+    <!-- Top-Right Floating Drawer Buttons -->
+    <div class="pointer-events-auto flex items-center gap-1.5 sm:gap-2">
+      <button id="open-browse-btn" title="Search & Playlists" class="glass-button min-h-[40px] px-3 sm:px-3.5 rounded-full flex items-center gap-1.5 text-xs font-semibold text-white">
+        <i class="ph ph-magnifying-glass text-base"></i>
+        <span class="hidden sm:inline">Search</span>
+      </button>
+
+      <button id="open-queue-btn" title="View Queue" class="glass-button w-10 h-10 rounded-full flex items-center justify-center text-slate-200">
+        <i class="ph ph-queue text-lg"></i>
+      </button>
+
+      <button id="open-auth-btn" title="Spotify Settings" class="glass-button h-10 px-3 rounded-full flex items-center gap-1.5 text-xs font-semibold text-white bg-spotify/20 border-spotify/40">
+        <i class="ph ph-plug-bold text-spotify text-base"></i>
+        <span id="auth-btn-text" class="hidden sm:inline">Link Spotify</span>
+      </button>
+    </div>
   </div>
 
-  <!-- Top-Right Control Buttons -->
-  <div class="fixed top-3 right-3 sm:top-5 sm:right-5 z-30 flex items-center gap-1.5 sm:gap-2.5">
-    <button id="open-browse-btn" title="Search & Playlists" class="glass-button h-9 sm:h-10 px-3 sm:px-3.5 rounded-full flex items-center gap-2 text-xs font-semibold text-white">
-      <i class="ph ph-magnifying-glass text-sm sm:text-base"></i>
-      <span class="hidden md:inline">Search & Playlists</span>
-    </button>
-
-    <button id="open-queue-btn" title="View Queue" class="glass-button w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-slate-200 hover:text-white">
-      <i class="ph ph-queue text-base sm:text-lg"></i>
-    </button>
-
-    <button id="open-auth-btn" title="Spotify Setup & Authorization" class="glass-button h-9 sm:h-10 px-3 sm:px-3.5 rounded-full flex items-center gap-1.5 sm:gap-2 text-xs font-semibold text-white bg-spotify/20 hover:bg-spotify/30 border-spotify/40">
-      <i class="ph ph-plug-bold text-spotify text-sm sm:text-base"></i>
-      <span id="auth-btn-text" class="hidden sm:inline">Link Spotify</span>
-    </button>
-  </div>
-
-  <!-- Main Centered Player Layout -->
-  <div class="relative z-10 h-full w-full flex flex-col justify-between pt-16 pb-6 px-4 sm:pt-20 sm:pb-8 sm:px-8 md:px-10 max-w-6xl mx-auto overflow-y-auto sm:overflow-hidden">
+  <div class="relative z-10 h-full w-full flex flex-col justify-between pt-16 sm:pt-20 pb-4 sm:pb-6 px-4 sm:px-8 max-w-5xl mx-auto overflow-y-auto sm:overflow-hidden safe-bottom">
     
-    <div class="flex-1 flex flex-col lg:flex-row items-center justify-center gap-5 sm:gap-8 lg:gap-14 my-auto min-h-0 py-2 sm:py-4">
+    <div class="flex-1 flex flex-col lg:flex-row items-center justify-center gap-4 sm:gap-8 lg:gap-12 my-auto min-h-0 py-2">
       
-      <!-- Album Artwork Canvas Section -->
-      <div class="relative group flex-shrink-0 w-44 h-44 sm:w-72 sm:h-72 md:w-80 md:h-80 lg:w-[400px] lg:h-[400px]">
-        <div id="album-glow" class="absolute -inset-3 sm:-inset-4 bg-purple-500/40 rounded-3xl blur-xl sm:blur-2xl opacity-80 group-hover:opacity-100 transition-all duration-1000"></div>
+      <!-- Album Cover Display -->
+      <div class="relative group flex-shrink-0 w-40 h-40 sm:w-60 sm:h-60 md:w-72 md:h-72 lg:w-80 lg:h-80 my-auto">
+        <div id="album-glow" class="absolute -inset-3 bg-purple-500/40 rounded-3xl blur-xl sm:blur-2xl opacity-80 group-hover:opacity-100 transition-all duration-1000"></div>
         
-        <div class="relative w-full h-full glass-panel rounded-2xl sm:rounded-3xl p-2.5 sm:p-4 flex items-center justify-center overflow-hidden transition-transform duration-500 transform group-hover:scale-[1.02]">
+        <div class="relative w-full h-full glass-panel rounded-2xl sm:rounded-3xl p-2 sm:p-3.5 flex items-center justify-center overflow-hidden transition-transform duration-300">
           <img id="album-art" crossorigin="anonymous" src="https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?w=600&auto=format&fit=crop&q=80" alt="Album Cover" class="w-full h-full object-cover rounded-xl sm:rounded-2xl shadow-2xl transition-all duration-700" />
           
           <div class="absolute inset-0 bg-gradient-to-tr from-white/10 via-transparent to-black/30 pointer-events-none rounded-2xl sm:rounded-3xl"></div>
 
-          <canvas id="visualizer-canvas" class="absolute bottom-2 left-2 right-2 sm:bottom-3 sm:left-3 sm:right-3 h-12 sm:h-16 rounded-xl pointer-events-none opacity-80"></canvas>
+          <!-- Canvas Visualizer Overlay -->
+          <canvas id="visualizer-canvas" class="absolute bottom-2 left-2 right-2 h-10 sm:h-14 rounded-xl pointer-events-none opacity-80"></canvas>
         </div>
       </div>
 
-      <!-- Metadata & Playback Controls -->
-      <div class="flex-1 max-w-xl w-full flex flex-col justify-center space-y-4 sm:space-y-6">
+      <!-- Main Controls & Metadata Container -->
+      <div class="flex-1 max-w-md lg:max-w-xl w-full flex flex-col justify-center space-y-3 sm:space-y-5">
         
-        <div class="text-center lg:text-left space-y-1 sm:space-y-2">
+        <!-- Song Title and Artist -->
+        <div class="text-center lg:text-left space-y-0.5 sm:space-y-1">
           <div class="flex items-center justify-center lg:justify-start gap-2">
-            <span id="smart-shuffle-badge" class="hidden text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full text-white bg-gradient-to-r from-purple-500 to-indigo-500 shadow-md shadow-purple-500/30 animate-pulse">
+            <span id="smart-shuffle-badge" class="hidden text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full text-white bg-gradient-to-r from-purple-500 to-indigo-500 shadow-md shadow-purple-500/30 animate-pulse">
               <i class="ph ph-sparkle mr-1"></i> Smart Shuffle
             </span>
           </div>
 
-          <h2 id="track-title" class="text-xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight line-clamp-1 text-white drop-shadow-md">
+          <h2 id="track-title" class="text-lg sm:text-2xl lg:text-3xl font-extrabold tracking-tight line-clamp-1 text-white drop-shadow-md">
             Midnight Fluidity
           </h2>
-          <p id="artist-name" class="text-xs sm:text-base lg:text-lg font-medium text-slate-300/90 line-clamp-1">
+          <p id="artist-name" class="text-xs sm:text-base font-medium text-slate-300/90 line-clamp-1">
             Glass Echoes
           </p>
         </div>
 
-        <div class="space-y-1 sm:space-y-1.5">
+        <!-- Seek Bar and Time Indicators -->
+        <div class="space-y-1">
           <div class="relative flex items-center">
             <input id="seek-bar" type="range" min="0" max="100" value="30" class="w-full h-2 rounded-lg cursor-pointer z-10" />
           </div>
-          <div class="flex justify-between text-[10px] sm:text-[11px] font-semibold text-slate-400 tracking-wider">
+          <div class="flex justify-between text-[10px] sm:text-xs font-semibold text-slate-400 tracking-wider">
             <span id="current-time">0:45</span>
             <span id="total-duration">3:15</span>
           </div>
         </div>
 
-        <!-- Floating Glass Main Control Dock -->
-        <div class="glass-panel p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl flex flex-col gap-3.5 sm:gap-4 shadow-2xl">
+        <!-- Floating Glass Control Dock -->
+        <div class="glass-panel p-3 sm:p-4 rounded-2xl sm:rounded-3xl flex flex-col gap-3 shadow-2xl">
           
-          <!-- Track & Playback Buttons Row -->
-          <div class="flex items-center justify-between gap-1.5 sm:gap-4">
-            <button id="like-btn" title="Save to Spotify Library" class="glass-button w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl flex items-center justify-center text-slate-300 hover:text-rose-500">
-              <i class="ph ph-heart text-lg sm:text-2xl"></i>
+          <!-- Primary Playback Buttons Row -->
+          <div class="flex items-center justify-between gap-1 sm:gap-3">
+            <button id="like-btn" title="Save to Spotify Library" class="glass-button w-10 h-10 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl flex items-center justify-center text-slate-300">
+              <i class="ph ph-heart text-xl"></i>
             </button>
 
-            <button id="shuffle-btn" title="Shuffle / Smart Shuffle" class="glass-button w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl flex items-center justify-center text-slate-300 relative">
-              <i class="ph ph-shuffle text-base sm:text-xl"></i>
-              <span id="smart-dot" class="hidden absolute top-1 right-1 sm:top-1.5 sm:right-1.5 w-2 h-2 rounded-full bg-purple-400 shadow-sm shadow-purple-400"></span>
+            <button id="shuffle-btn" title="Shuffle / Smart Shuffle" class="glass-button w-10 h-10 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl flex items-center justify-center text-slate-300 relative">
+              <i class="ph ph-shuffle text-lg"></i>
+              <span id="smart-dot" class="hidden absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-purple-400 shadow-sm shadow-purple-400"></span>
             </button>
 
-            <button id="prev-btn" title="Previous Track" class="glass-button w-10 h-10 sm:w-13 sm:h-13 rounded-xl sm:rounded-2xl flex items-center justify-center text-slate-100">
-              <i class="ph-fill ph-caret-double-left text-lg sm:text-2xl"></i>
+            <button id="prev-btn" title="Previous Track" class="glass-button w-11 h-11 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl flex items-center justify-center text-slate-100">
+              <i class="ph-fill ph-caret-double-left text-xl"></i>
             </button>
 
-            <button id="play-btn" title="Play / Pause" class="w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-gradient-to-tr from-spotify via-emerald-400 to-teal-300 text-black flex items-center justify-center shadow-lg shadow-spotify/40 hover:scale-105 active:scale-95 transition-transform duration-200">
-              <i id="play-icon" class="ph-fill ph-play text-xl sm:text-3xl ml-0.5"></i>
+            <button id="play-btn" title="Play / Pause" class="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-tr from-spotify via-emerald-400 to-teal-300 text-black flex items-center justify-center shadow-lg shadow-spotify/40 active:scale-90 transition-transform duration-150">
+              <i id="play-icon" class="ph-fill ph-play text-2xl ml-0.5"></i>
             </button>
 
-            <button id="next-btn" title="Next Track" class="glass-button w-10 h-10 sm:w-13 sm:h-13 rounded-xl sm:rounded-2xl flex items-center justify-center text-slate-100">
-              <i class="ph-fill ph-caret-double-right text-lg sm:text-2xl"></i>
+            <button id="next-btn" title="Next Track" class="glass-button w-11 h-11 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl flex items-center justify-center text-slate-100">
+              <i class="ph-fill ph-caret-double-right text-xl"></i>
             </button>
 
-            <button id="repeat-btn" title="Repeat Mode" class="glass-button w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl flex items-center justify-center text-slate-300 relative">
-              <i id="repeat-icon" class="ph ph-repeat text-base sm:text-xl"></i>
-              <span id="repeat-one-badge" class="hidden absolute text-[9px] font-extrabold top-1 right-2 text-spotify">1</span>
+            <button id="repeat-btn" title="Repeat Mode" class="glass-button w-10 h-10 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl flex items-center justify-center text-slate-300 relative">
+              <i id="repeat-icon" class="ph ph-repeat text-lg"></i>
+              <span id="repeat-one-badge" class="hidden absolute text-[9px] font-extrabold top-1 right-1.5 text-spotify">1</span>
             </button>
 
-            <button id="devices-btn" title="Select Active Spotify Device" class="glass-button w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl flex items-center justify-center text-slate-300 hover:text-spotify">
-              <i class="ph ph-devices text-lg sm:text-2xl"></i>
+            <!-- Icon-only Device Selector Button -->
+            <button id="devices-btn" title="Select Active Spotify Device" class="glass-button w-10 h-10 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl flex items-center justify-center text-slate-300 hover:text-spotify">
+              <i class="ph ph-devices text-xl"></i>
             </button>
           </div>
 
-          <!-- Centered Volume Control Row -->
-          <div class="flex items-center justify-center w-full pt-3 border-t border-white/10">
-            <div class="flex items-center justify-center gap-3 w-full max-w-sm px-2">
-              <button id="mute-btn" title="Quick Mute / Unmute" class="glass-button w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center text-slate-200 hover:text-white transition flex-shrink-0">
-                <i id="volume-icon" class="ph ph-speaker-high text-base sm:text-lg"></i>
+          <!-- Centered Volume Row with Mute Toggle -->
+          <div class="flex items-center justify-center w-full pt-1.5 border-t border-white/10">
+            <div class="flex items-center space-x-3 w-full max-w-xs justify-center">
+              <button id="mute-btn" title="Quick Mute / Unmute" class="glass-button min-w-[36px] min-h-[36px] rounded-lg flex items-center justify-center text-slate-300 flex-shrink-0">
+                <i id="volume-icon" class="ph ph-speaker-high text-base"></i>
               </button>
-              
-              <div class="flex-1 flex items-center">
-                <input id="volume-slider" type="range" min="0" max="100" value="80" class="w-full h-1.5 bg-white/20 rounded-lg cursor-pointer" />
-              </div>
-
-              <span id="volume-percent-text" class="text-[11px] font-bold text-slate-300 w-8 text-right flex-shrink-0">80%</span>
+              <input id="volume-slider" type="range" min="0" max="100" value="80" class="w-full h-1.5 bg-white/20 rounded-lg cursor-pointer" />
             </div>
           </div>
 
@@ -307,136 +311,127 @@
   </div>
 
   <!-- Search & Playlists Drawer -->
-  <div id="browse-drawer" class="fixed inset-y-0 right-0 w-full max-w-md glass-panel z-50 transform translate-x-full transition-transform duration-300 ease-in-out p-6 flex flex-col justify-between shadow-2xl border-l border-white/20">
+  <div id="browse-drawer" class="fixed inset-y-0 right-0 w-full sm:max-w-md glass-panel z-50 transform translate-x-full transition-transform duration-300 ease-in-out p-5 sm:p-6 flex flex-col justify-between shadow-2xl border-l border-white/20 safe-top safe-bottom">
     <div class="flex flex-col h-full">
       <div class="flex items-center justify-between mb-4">
         <div class="flex items-center gap-2">
-          <button id="tab-search-btn" class="glass-button px-3.5 py-1.5 rounded-full text-xs font-bold text-white tab-active">
+          <button id="tab-search-btn" class="glass-button px-3 py-1.5 rounded-full text-xs font-bold text-white tab-active">
             <i class="ph ph-magnifying-glass mr-1"></i> Search
           </button>
-          <button id="tab-playlists-btn" class="glass-button px-3.5 py-1.5 rounded-full text-xs font-bold text-slate-300">
-            <i class="ph ph-playlist mr-1"></i> My Playlists
+          <button id="tab-playlists-btn" class="glass-button px-3 py-1.5 rounded-full text-xs font-bold text-slate-300">
+            <i class="ph ph-playlist mr-1"></i> Playlists
           </button>
         </div>
 
-        <button id="close-browse-btn" class="glass-button w-8 h-8 rounded-full flex items-center justify-center text-slate-300 hover:text-white">
-          <i class="ph ph-x"></i>
+        <button id="close-browse-btn" class="glass-button w-9 h-9 rounded-full flex items-center justify-center text-slate-300">
+          <i class="ph ph-x text-lg"></i>
         </button>
       </div>
 
       <div id="search-tab-content" class="flex-1 flex flex-col min-h-0">
         <div class="relative mb-3">
           <i class="ph ph-magnifying-glass absolute left-3.5 top-3.5 text-slate-400 text-lg"></i>
-          <input id="search-input" type="text" placeholder="Search tracks, artists, albums..." class="w-full glass-input rounded-xl py-2.5 pl-10 pr-4 text-sm text-white placeholder-slate-400 focus:outline-none focus:border-spotify" />
+          <input id="search-input" type="text" placeholder="Search tracks, artists..." class="w-full glass-input rounded-xl py-2.5 pl-10 pr-4 text-sm text-white placeholder-slate-400 focus:outline-none focus:border-spotify" />
         </div>
 
-        <div id="recent-searches-container" class="mb-4">
+        <div id="recent-searches-container" class="mb-3">
           <div class="flex items-center justify-between mb-2">
-            <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Recent Searches</span>
-            <button id="clear-history-btn" class="text-[10px] text-slate-400 hover:text-rose-400 transition">Clear History</button>
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Recent Searches</span>
+            <button id="clear-history-btn" class="text-[10px] text-slate-400 hover:text-rose-400">Clear</button>
           </div>
-          <div id="recent-search-chips" class="flex flex-wrap gap-1.5">
-          </div>
+          <div id="recent-search-chips" class="flex flex-wrap gap-1.5"></div>
         </div>
 
         <div class="flex-1 overflow-y-auto space-y-2 pr-1" id="search-results-container">
-          <p id="search-placeholder" class="text-xs text-slate-400 text-center py-8">Type above to search Spotify's catalog...</p>
+          <p id="search-placeholder" class="text-xs text-slate-400 text-center py-8">Type above to search Spotify...</p>
         </div>
       </div>
 
       <div id="playlists-tab-content" class="flex-1 overflow-y-auto space-y-2 pr-1 hidden">
         <div id="playlists-container" class="space-y-2">
-          <p class="text-xs text-slate-400 text-center py-8">Link your Spotify account to view and play your playlists.</p>
+          <p class="text-xs text-slate-400 text-center py-8">Link your Spotify account to view playlists.</p>
         </div>
       </div>
     </div>
   </div>
 
   <!-- Queue Drawer -->
-  <div id="queue-drawer" class="fixed inset-y-0 right-0 w-full max-w-md glass-panel z-50 transform translate-x-full transition-transform duration-300 ease-in-out p-6 flex flex-col justify-between shadow-2xl border-l border-white/20">
+  <div id="queue-drawer" class="fixed inset-y-0 right-0 w-full sm:max-w-md glass-panel z-50 transform translate-x-full transition-transform duration-300 ease-in-out p-5 sm:p-6 flex flex-col justify-between shadow-2xl border-l border-white/20 safe-top safe-bottom">
     <div class="flex flex-col h-full">
       <div class="flex items-center justify-between mb-4">
-        <h3 class="text-lg font-bold flex items-center gap-2">
+        <h3 class="text-base font-bold flex items-center gap-2">
           <i class="ph ph-queue text-spotify text-xl"></i> Live Queue
         </h3>
-        <button id="close-queue-btn" class="glass-button w-8 h-8 rounded-full flex items-center justify-center text-slate-300 hover:text-white">
-          <i class="ph ph-x"></i>
+        <button id="close-queue-btn" class="glass-button w-9 h-9 rounded-full flex items-center justify-center text-slate-300">
+          <i class="ph ph-x text-lg"></i>
         </button>
       </div>
 
-      <div id="queue-list" class="flex-1 overflow-y-auto space-y-3 pr-1">
-      </div>
+      <div id="queue-list" class="flex-1 overflow-y-auto space-y-2.5 pr-1"></div>
     </div>
   </div>
 
-  <!-- Auth Settings Modal -->
-  <div id="auth-modal" class="fixed inset-0 bg-black/75 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-    <div class="glass-panel w-full max-w-lg p-6 sm:p-8 rounded-3xl relative shadow-2xl border border-white/20 max-h-[90vh] overflow-y-auto">
-      <button id="close-auth-btn" class="absolute top-4 right-4 glass-button w-8 h-8 rounded-full flex items-center justify-center text-slate-300 hover:text-white">
+  <!-- Spotify Auth Modal -->
+  <div id="auth-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+    <div class="glass-panel w-full max-w-md p-6 rounded-3xl relative shadow-2xl border border-white/20 max-h-[90vh] overflow-y-auto">
+      <button id="close-auth-btn" class="absolute top-4 right-4 glass-button w-8 h-8 rounded-full flex items-center justify-center text-slate-300">
         <i class="ph ph-x"></i>
       </button>
 
-      <div class="text-center mb-6">
-        <div class="w-14 h-14 rounded-2xl bg-spotify/20 border border-spotify/40 mx-auto flex items-center justify-center mb-3 shadow-lg shadow-spotify/20">
-          <i class="fa-brands fa-spotify text-spotify text-3xl"></i>
+      <div class="text-center mb-5">
+        <div class="w-12 h-12 rounded-2xl bg-spotify/20 border border-spotify/40 mx-auto flex items-center justify-center mb-2 shadow-lg shadow-spotify/20">
+          <i class="fa-brands fa-spotify text-spotify text-2xl"></i>
         </div>
-        <h3 class="text-2xl font-extrabold">Link Your Spotify</h3>
-        <p class="text-xs text-slate-300 mt-1">Connect using Spotify's secure PKCE OAuth 2.0 flow.</p>
+        <h3 class="text-xl font-extrabold">Connect Spotify</h3>
+        <p class="text-xs text-slate-300 mt-1">OAuth 2.0 PKCE Integration</p>
       </div>
 
-      <div class="space-y-4">
+      <div class="space-y-3.5">
         <div>
           <label class="block text-xs font-semibold text-slate-200 mb-1">Spotify Client ID</label>
-          <input id="client-id-input" type="text" placeholder="e.g. 3a7b9c1d2e3f4a5b6c7d8e9f" class="w-full glass-input rounded-xl py-3 px-4 text-sm text-white focus:outline-none focus:border-spotify" />
+          <input id="client-id-input" type="text" placeholder="e.g. 3a7b9c1d2e3f4a5b6c7d8e9f" class="w-full glass-input rounded-xl py-2.5 px-3.5 text-xs text-white focus:outline-none focus:border-spotify" />
         </div>
 
         <div>
-          <label class="block text-xs font-semibold text-slate-200 mb-1">Redirect URI (Configured in Spotify Dashboard)</label>
+          <label class="block text-xs font-semibold text-slate-200 mb-1">Redirect URI</label>
           <div class="flex items-center gap-2">
-            <input id="redirect-uri-display" type="text" readonly class="w-full glass-input rounded-xl py-2.5 px-3 text-xs text-slate-300 bg-black/40 select-all" />
-            <button id="copy-redirect-btn" class="glass-button px-3 py-2 rounded-xl text-xs font-bold text-spotify flex-shrink-0">
-              Copy
-            </button>
+            <input id="redirect-uri-display" type="text" readonly class="w-full glass-input rounded-xl py-2 px-3 text-[11px] text-slate-300 bg-black/40 select-all" />
+            <button id="copy-redirect-btn" class="glass-button px-3 py-2 rounded-xl text-xs font-bold text-spotify flex-shrink-0">Copy</button>
           </div>
         </div>
 
-        <div class="p-4 bg-black/40 rounded-2xl text-[11px] text-slate-300/90 space-y-2 border border-white/10">
-          <p class="font-bold text-white flex items-center gap-1.5">
-            <i class="ph ph-info text-spotify text-sm"></i> Quick Setup Steps:
+        <div class="p-3 bg-black/40 rounded-2xl text-[11px] text-slate-300 space-y-1.5 border border-white/10">
+          <p class="font-bold text-white flex items-center gap-1">
+            <i class="ph ph-info text-spotify"></i> Setup Note:
           </p>
-          <ol class="list-decimal pl-4 space-y-1 text-slate-300">
-            <li>Open the <a href="https://developer.spotify.com/dashboard" target="_blank" class="text-spotify font-semibold underline">Spotify Developer Dashboard</a> and click <strong>Create App</strong>.</li>
-            <li>In settings under <strong>Redirect URIs</strong>, paste the exact URI above.</li>
-            <li>Copy your <strong>Client ID</strong>, paste it into the field above, and click <strong>Authorize & Connect</strong>.</li>
-          </ol>
+          <p>Add the exact Redirect URI above inside your <a href="https://developer.spotify.com/dashboard" target="_blank" class="text-spotify font-semibold underline">Spotify Dashboard</a> Settings.</p>
         </div>
 
-        <div id="auth-connected-info" class="hidden p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-xs text-emerald-300 flex items-center justify-between">
-          <span id="spotify-user-display">Connected as User</span>
+        <div id="auth-connected-info" class="hidden p-2.5 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-xs text-emerald-300 flex items-center justify-between">
+          <span id="spotify-user-display">Connected</span>
           <button id="disconnect-btn" class="text-rose-400 font-bold hover:underline">Disconnect</button>
         </div>
 
-        <button id="save-auth-btn" class="w-full py-3.5 rounded-xl bg-spotify hover:bg-spotify-dark font-extrabold text-black text-sm shadow-lg shadow-spotify/30 transition transform hover:scale-[1.02] flex items-center justify-center gap-2">
-          <i class="ph ph-plug-bold text-lg"></i> Authorize & Connect Spotify
+        <button id="save-auth-btn" class="w-full py-3 rounded-xl bg-spotify hover:bg-spotify-dark font-extrabold text-black text-xs shadow-lg shadow-spotify/30 flex items-center justify-center gap-2">
+          <i class="ph ph-plug-bold text-base"></i> Connect Account
         </button>
       </div>
     </div>
   </div>
 
-  <!-- Devices Selection Modal -->
-  <div id="devices-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-    <div class="glass-panel w-full max-w-sm p-6 rounded-3xl relative shadow-2xl border border-white/20">
-      <div class="flex items-center justify-between mb-4">
-        <h3 class="text-base font-bold flex items-center gap-2">
-          <i class="ph ph-devices text-spotify text-lg"></i> Select Active Device
+  <!-- Active Device Picker Modal -->
+  <div id="devices-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="glass-panel w-full max-w-xs p-5 rounded-3xl relative shadow-2xl border border-white/20">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-sm font-bold flex items-center gap-2">
+          <i class="ph ph-devices text-spotify text-base"></i> Active Device
         </h3>
-        <button id="close-devices-btn" class="glass-button w-7 h-7 rounded-full flex items-center justify-center text-slate-300 hover:text-white">
-          <i class="ph ph-x"></i>
+        <button id="close-devices-btn" class="glass-button w-7 h-7 rounded-full flex items-center justify-center text-slate-300">
+          <i class="ph ph-x text-xs"></i>
         </button>
       </div>
 
-      <div id="devices-list" class="space-y-2 max-h-60 overflow-y-auto">
-      </div>
+      <div id="devices-list" class="space-y-2 max-h-56 overflow-y-auto"></div>
     </div>
   </div>
 
@@ -478,14 +473,12 @@
     const smartDot = document.getElementById('smart-dot');
     const smartShuffleBadge = document.getElementById('smart-shuffle-badge');
     const repeatBtn = document.getElementById('repeat-btn');
-    const repeatIcon = document.getElementById('repeat-icon');
     const repeatOneBadge = document.getElementById('repeat-one-badge');
     const likeBtn = document.getElementById('like-btn');
     const seekBar = document.getElementById('seek-bar');
     const currentTimeEl = document.getElementById('current-time');
     const totalDurationEl = document.getElementById('total-duration');
     const volumeSlider = document.getElementById('volume-slider');
-    const volumePercentText = document.getElementById('volume-percent-text');
     const muteBtn = document.getElementById('mute-btn');
     const volumeIcon = document.getElementById('volume-icon');
     const trackTitleEl = document.getElementById('track-title');
@@ -502,29 +495,21 @@
     let spotifySyncInterval = null;
     let searchDebounceTimeout = null;
 
-    /* --- Dynamic Color Extraction --- */
+    /* --- Canvas Color Extraction --- */
     function extractColorsFromImage(imgElement) {
-      const offscreenCanvas = document.createElement('canvas');
-      const ctx = offscreenCanvas.getContext('2d');
-      offscreenCanvas.width = 50;
-      offscreenCanvas.height = 50;
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = 40;
+      canvas.height = 40;
 
       try {
-        ctx.drawImage(imgElement, 0, 0, 50, 50);
-        const imageData = ctx.getImageData(0, 0, 50, 50).data;
-        let r1 = 0, g1 = 0, b1 = 0;
-        let r2 = 0, g2 = 0, b2 = 0;
-        let count = 0;
+        ctx.drawImage(imgElement, 0, 0, 40, 40);
+        const data = ctx.getImageData(0, 0, 40, 40).data;
+        let r1 = 0, g1 = 0, b1 = 0, r2 = 0, g2 = 0, b2 = 0, count = 0;
 
-        for (let i = 0; i < imageData.length; i += 16) {
-          const r = imageData[i];
-          const g = imageData[i + 1];
-          const b = imageData[i + 2];
-          if (i % 32 === 0) {
-            r1 += r; g1 += g; b1 += b;
-          } else {
-            r2 += r; g2 += g; b2 += b;
-          }
+        for (let i = 0; i < data.length; i += 16) {
+          if (i % 32 === 0) { r1 += data[i]; g1 += data[i+1]; b1 += data[i+2]; }
+          else { r2 += data[i]; g2 += data[i+1]; b2 += data[i+2]; }
           count++;
         }
 
@@ -541,13 +526,12 @@
         document.getElementById('blob1').style.backgroundColor = 'rgba(147, 51, 234, 0.35)';
         document.getElementById('blob2').style.backgroundColor = 'rgba(16, 185, 129, 0.3)';
         document.getElementById('blob3').style.backgroundColor = 'rgba(37, 99, 235, 0.3)';
-        document.getElementById('album-glow').style.backgroundColor = 'rgba(29, 185, 84, 0.4)';
       }
     }
 
     albumArtEl.addEventListener('load', () => extractColorsFromImage(albumArtEl));
 
-    /* --- Spotify OAuth PKCE Flow --- */
+    /* --- PKCE OAuth Authorization --- */
     function generateRandomString(length) {
       const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
       const values = crypto.getRandomValues(new Uint8Array(length));
@@ -571,9 +555,7 @@
     }
 
     function getRedirectUri() {
-      if (window.location.protocol === 'file:') {
-        return 'http://localhost:5500/';
-      }
+      if (window.location.protocol === 'file:') return 'http://localhost:5500/';
       return window.location.origin + window.location.pathname;
     }
 
@@ -596,7 +578,6 @@
         'user-read-playback-state',
         'user-modify-playback-state',
         'user-read-currently-playing',
-        'streaming',
         'user-library-read',
         'user-library-modify',
         'playlist-read-private',
@@ -651,25 +632,10 @@
             initConnectedState();
           }
         } catch (err) {
-          console.error('Error exchanging PKCE auth code:', err);
+          console.error('Error exchanging PKCE code:', err);
         }
       } else if (STATE.accessToken) {
         initConnectedState();
-      }
-    }
-
-    async function fetchUserProfile() {
-      if (!STATE.accessToken) return;
-      try {
-        const res = await spotifyApiRequest('/me');
-        if (res && res.display_name) {
-          STATE.userProfile = res;
-          document.getElementById('auth-btn-text').innerText = res.display_name;
-          document.getElementById('spotify-user-display').innerText = `Connected as ${res.display_name}`;
-          document.getElementById('auth-connected-info').classList.remove('hidden');
-        }
-      } catch (e) {
-        console.warn('Could not fetch user profile', e);
       }
     }
 
@@ -737,20 +703,11 @@
 
         STATE.duration = Math.floor(data.item.duration_ms / 1000);
         STATE.currentTime = Math.floor(data.progress_ms / 1000);
-        
-        if (data.device) {
-          STATE.currentDevice = data.device.name;
-          document.getElementById('current-device-name').innerText = STATE.currentDevice;
-          if (data.device.volume_percent !== undefined) {
-            STATE.volume = data.device.volume_percent;
-            updateVolumeUI();
-          }
-        }
 
         if (data.smart_shuffle || data.shuffle_state === 'enhanced') {
-          STATE.shuffleState = 2; // Smart Shuffle
+          STATE.shuffleState = 2;
         } else if (data.shuffle_state === true) {
-          STATE.shuffleState = 1; // Standard Shuffle
+          STATE.shuffleState = 1;
         } else {
           STATE.shuffleState = 0;
         }
@@ -787,9 +744,9 @@
         if (data.currently_playing) {
           const curr = data.currently_playing;
           const currEl = document.createElement('div');
-          currEl.className = 'p-3 rounded-xl bg-spotify/20 border border-spotify/40 flex items-center gap-3 mb-4';
+          currEl.className = 'p-3 rounded-xl bg-spotify/20 border border-spotify/40 flex items-center gap-3 mb-3';
           currEl.innerHTML = `
-            <img src="${curr.album.images[0]?.url || STATE.track.albumArt}" class="w-11 h-11 rounded-lg object-cover" />
+            <img src="${curr.album.images[0]?.url || STATE.track.albumArt}" class="w-10 h-10 rounded-lg object-cover" />
             <div class="flex-1 min-w-0">
               <span class="text-[9px] font-extrabold uppercase text-spotify tracking-wider">Now Playing</span>
               <h5 class="text-xs font-bold text-white truncate">${curr.name}</h5>
@@ -799,17 +756,12 @@
           queueList.appendChild(currEl);
         }
 
-        const title = document.createElement('p');
-        title.className = 'text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2';
-        title.innerText = 'Next In Queue';
-        queueList.appendChild(title);
-
         data.queue.slice(0, 20).forEach((item, index) => {
           const card = document.createElement('div');
           card.className = 'glass-button p-2.5 rounded-xl flex items-center justify-between gap-3 cursor-pointer';
           card.innerHTML = `
             <div class="flex items-center gap-3 min-w-0">
-              <img src="${item.album?.images[0]?.url || STATE.track.albumArt}" class="w-10 h-10 rounded-lg object-cover flex-shrink-0" />
+              <img src="${item.album?.images[0]?.url || STATE.track.albumArt}" class="w-9 h-9 rounded-lg object-cover flex-shrink-0" />
               <div class="min-w-0">
                 <h5 class="text-xs font-bold text-white truncate">${item.name}</h5>
                 <p class="text-[10px] text-slate-400 truncate">${item.artists.map(a => a.name).join(', ')}</p>
@@ -829,10 +781,9 @@
       const queueList = document.getElementById('queue-list');
       if (!queueList) return;
       queueList.innerHTML = `
-        <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Demo Upcoming Queue</p>
         <div class="glass-button p-3 rounded-xl flex items-center justify-between">
           <div class="flex items-center gap-3">
-            <img src="https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=300" class="w-10 h-10 rounded-lg object-cover" />
+            <img src="https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=300" class="w-9 h-9 rounded-lg object-cover" />
             <div>
               <h5 class="text-xs font-bold text-white">Neon Reflections</h5>
               <p class="text-[10px] text-slate-400">Aura Dreams</p>
@@ -850,25 +801,23 @@
         return;
       }
 
-      container.innerHTML = '<p class="text-xs text-slate-400 text-center py-8">Loading your Spotify playlists...</p>';
-      const data = await spotifyApiRequest('/me/playlists?limit=30');
+      container.innerHTML = '<p class="text-xs text-slate-400 text-center py-8">Loading playlists...</p>';
+      const data = await spotifyApiRequest('/me/playlists?limit=25');
 
       if (data && data.items && data.items.length > 0) {
-        STATE.userPlaylists = data.items;
         container.innerHTML = '';
-
         data.items.forEach(playlist => {
           const card = document.createElement('div');
-          card.className = 'glass-button p-3 rounded-xl flex items-center gap-3 cursor-pointer group';
+          card.className = 'glass-button p-2.5 rounded-xl flex items-center gap-3 cursor-pointer group';
           const artUrl = playlist.images && playlist.images[0] ? playlist.images[0].url : 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=300';
           
           card.innerHTML = `
-            <img src="${artUrl}" class="w-12 h-12 rounded-lg object-cover flex-shrink-0" />
+            <img src="${artUrl}" class="w-11 h-11 rounded-lg object-cover flex-shrink-0" />
             <div class="flex-1 min-w-0">
               <h4 class="text-xs font-bold text-white group-hover:text-spotify truncate">${playlist.name}</h4>
-              <p class="text-[10px] text-slate-400 truncate">${playlist.tracks.total} Tracks • By ${playlist.owner.display_name}</p>
+              <p class="text-[10px] text-slate-400 truncate">${playlist.tracks.total} Tracks</p>
             </div>
-            <i class="ph-fill ph-play-circle text-2xl text-spotify opacity-0 group-hover:opacity-100 transition"></i>
+            <i class="ph-fill ph-play-circle text-xl text-spotify opacity-0 group-hover:opacity-100 transition"></i>
           `;
 
           card.onclick = () => playContext(playlist.uri);
@@ -892,8 +841,8 @@
 
       STATE.searchHistory.forEach(query => {
         const chip = document.createElement('button');
-        chip.className = 'glass-button px-2.5 py-1 rounded-full text-[11px] text-slate-300 hover:text-white flex items-center gap-1.5';
-        chip.innerHTML = `<i class="ph ph-clock-counter-clockwise text-xs"></i> ${query}`;
+        chip.className = 'glass-button px-2.5 py-1 rounded-full text-[10px] text-slate-300 flex items-center gap-1';
+        chip.innerHTML = `<i class="ph ph-clock-counter-clockwise"></i> ${query}`;
         chip.onclick = () => {
           document.getElementById('search-input').value = query;
           performSearch(query);
@@ -906,7 +855,7 @@
       if (!query.trim()) return;
       const filtered = STATE.searchHistory.filter(q => q.toLowerCase() !== query.toLowerCase());
       filtered.unshift(query);
-      STATE.searchHistory = filtered.slice(0, 8);
+      STATE.searchHistory = filtered.slice(0, 6);
       localStorage.setItem('spotify_search_history', JSON.stringify(STATE.searchHistory));
       renderSearchHistory();
     }
@@ -915,18 +864,17 @@
       const resultsContainer = document.getElementById('search-results-container');
       
       if (!query.trim()) {
-        resultsContainer.innerHTML = '<p class="text-xs text-slate-400 text-center py-8">Type above to search Spotify\'s catalog...</p>';
+        resultsContainer.innerHTML = '<p class="text-xs text-slate-400 text-center py-8">Type above to search Spotify...</p>';
         return;
       }
 
       if (!STATE.isLoggedIn) {
-        resultsContainer.innerHTML = '<p class="text-xs text-slate-400 text-center py-8">Connect your Spotify account to search live tracks.</p>';
+        resultsContainer.innerHTML = '<p class="text-xs text-slate-400 text-center py-8">Connect Spotify to search live tracks.</p>';
         return;
       }
 
       resultsContainer.innerHTML = '<p class="text-xs text-slate-400 text-center py-8">Searching Spotify...</p>';
-
-      const data = await spotifyApiRequest(`/search?q=${encodeURIComponent(query)}&type=track,artist,playlist&limit=10`);
+      const data = await spotifyApiRequest(`/search?q=${encodeURIComponent(query)}&type=track&limit=10`);
       
       if (data && data.tracks && data.tracks.items.length > 0) {
         saveSearchQuery(query);
@@ -943,14 +891,14 @@
               <h5 class="text-xs font-bold text-white group-hover:text-spotify truncate">${track.name}</h5>
               <p class="text-[10px] text-slate-400 truncate">${track.artists.map(a => a.name).join(', ')}</p>
             </div>
-            <i class="ph-fill ph-play-circle text-2xl text-spotify opacity-0 group-hover:opacity-100 transition"></i>
+            <i class="ph-fill ph-play-circle text-xl text-spotify opacity-0 group-hover:opacity-100 transition"></i>
           `;
 
           card.onclick = () => playSpecificTrack(track.uri);
           resultsContainer.appendChild(card);
         });
       } else {
-        resultsContainer.innerHTML = '<p class="text-xs text-slate-400 text-center py-8">No results found for your search.</p>';
+        resultsContainer.innerHTML = '<p class="text-xs text-slate-400 text-center py-8">No results found.</p>';
       }
     }
 
@@ -970,8 +918,7 @@
 
     function initConnectedState() {
       STATE.isLoggedIn = true;
-      connectionStatusText.innerHTML = `<span class="w-2 h-2 rounded-full bg-spotify animate-pulse"></span> Spotify Connected`;
-      fetchUserProfile();
+      connectionStatusText.innerHTML = `<span class="w-2 h-2 rounded-full bg-spotify animate-pulse"></span> Connected`;
       syncPlaybackState();
       fetchUserPlaylists();
 
@@ -990,10 +937,10 @@
 
     function updatePlaybackUI() {
       if (STATE.isPlaying) {
-        playIcon.className = 'ph-fill ph-pause text-xl sm:text-3xl';
+        playIcon.className = 'ph-fill ph-pause text-2xl';
         startDemoProgress();
       } else {
-        playIcon.className = 'ph-fill ph-play text-xl sm:text-3xl ml-0.5';
+        playIcon.className = 'ph-fill ph-play text-2xl ml-0.5';
         stopDemoProgress();
       }
     }
@@ -1005,7 +952,8 @@
           STATE.currentTime++;
           updateTimeDisplay();
         } else {
-          nextTrack();
+          STATE.currentTime = 0;
+          updateTimeDisplay();
         }
       }, 1000);
     }
@@ -1042,15 +990,15 @@
 
     function updateShuffleUI() {
       if (STATE.shuffleState === 0) {
-        shuffleBtn.className = 'glass-button w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl flex items-center justify-center text-slate-300 relative';
+        shuffleBtn.className = 'glass-button w-10 h-10 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl flex items-center justify-center text-slate-300 relative';
         smartDot.classList.add('hidden');
         smartShuffleBadge.classList.add('hidden');
       } else if (STATE.shuffleState === 1) {
-        shuffleBtn.className = 'glass-button w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl flex items-center justify-center text-spotify border-spotify/50 relative';
+        shuffleBtn.className = 'glass-button w-10 h-10 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl flex items-center justify-center text-spotify border-spotify/50 relative';
         smartDot.classList.add('hidden');
         smartShuffleBadge.classList.add('hidden');
       } else if (STATE.shuffleState === 2) {
-        shuffleBtn.className = 'glass-button w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl flex items-center justify-center text-purple-400 border-purple-500/50 relative shadow-lg shadow-purple-500/20';
+        shuffleBtn.className = 'glass-button w-10 h-10 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl flex items-center justify-center text-purple-400 border-purple-500/50 relative shadow-lg shadow-purple-500/20';
         smartDot.classList.remove('hidden');
         smartShuffleBadge.classList.remove('hidden');
       }
@@ -1061,13 +1009,13 @@
       const modes = ['off', 'context', 'track'];
       
       if (STATE.repeatState === 0) {
-        repeatBtn.className = 'glass-button w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl flex items-center justify-center text-slate-300 relative';
+        repeatBtn.className = 'glass-button w-10 h-10 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl flex items-center justify-center text-slate-300 relative';
         repeatOneBadge.classList.add('hidden');
       } else if (STATE.repeatState === 1) {
-        repeatBtn.className = 'glass-button w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl flex items-center justify-center text-spotify border-spotify/50 relative';
+        repeatBtn.className = 'glass-button w-10 h-10 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl flex items-center justify-center text-spotify border-spotify/50 relative';
         repeatOneBadge.classList.add('hidden');
       } else if (STATE.repeatState === 2) {
-        repeatBtn.className = 'glass-button w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl flex items-center justify-center text-spotify border-spotify/50 relative';
+        repeatBtn.className = 'glass-button w-10 h-10 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl flex items-center justify-center text-spotify border-spotify/50 relative';
         repeatOneBadge.classList.remove('hidden');
       }
 
@@ -1081,25 +1029,21 @@
       updateLikeUI();
 
       if (STATE.isLoggedIn && STATE.track.id) {
-        if (STATE.isLiked) {
-          spotifyApiRequest(`/me/tracks?ids=${STATE.track.id}`, 'PUT');
-        } else {
-          spotifyApiRequest(`/me/tracks?ids=${STATE.track.id}`, 'DELETE');
-        }
+        if (STATE.isLiked) spotifyApiRequest(`/me/tracks?ids=${STATE.track.id}`, 'PUT');
+        else spotifyApiRequest(`/me/tracks?ids=${STATE.track.id}`, 'DELETE');
       }
     }
 
     function updateLikeUI() {
       if (STATE.isLiked) {
-        likeBtn.innerHTML = '<i class="ph-fill ph-heart text-lg sm:text-2xl text-rose-500"></i>';
+        likeBtn.innerHTML = '<i class="ph-fill ph-heart text-xl text-rose-500"></i>';
         likeBtn.classList.add('border-rose-500/40');
       } else {
-        likeBtn.innerHTML = '<i class="ph ph-heart text-lg sm:text-2xl"></i>';
+        likeBtn.innerHTML = '<i class="ph ph-heart text-xl"></i>';
         likeBtn.classList.remove('border-rose-500/40');
       }
     }
 
-    /* --- Quick Mute / Unmute --- */
     function toggleMute() {
       if (STATE.isMuted) {
         STATE.isMuted = false;
@@ -1117,31 +1061,12 @@
 
     function updateVolumeUI() {
       volumeSlider.value = STATE.volume;
-      volumePercentText.innerText = `${STATE.volume}%`;
       if (STATE.volume == 0 || STATE.isMuted) {
-        volumeIcon.className = 'ph ph-speaker-x text-base sm:text-lg text-rose-400';
+        volumeIcon.className = 'ph ph-speaker-x text-base text-rose-400';
       } else if (STATE.volume < 40) {
-        volumeIcon.className = 'ph ph-speaker-low text-base sm:text-lg text-slate-200';
+        volumeIcon.className = 'ph ph-speaker-low text-base text-slate-200';
       } else {
-        volumeIcon.className = 'ph ph-speaker-high text-base sm:text-lg text-slate-200';
-      }
-    }
-
-    function nextTrack() {
-      if (STATE.isLoggedIn) {
-        spotifyApiRequest('/me/player/next', 'POST');
-      } else {
-        STATE.currentTime = 0;
-        updateTimeDisplay();
-      }
-    }
-
-    function prevTrack() {
-      if (STATE.isLoggedIn) {
-        spotifyApiRequest('/me/player/previous', 'POST');
-      } else {
-        STATE.currentTime = 0;
-        updateTimeDisplay();
+        volumeIcon.className = 'ph ph-speaker-high text-base text-slate-200';
       }
     }
 
@@ -1153,7 +1078,7 @@
 
     async function loadDevices() {
       const list = document.getElementById('devices-list');
-      list.innerHTML = '<p class="text-xs text-slate-400 p-2">Searching for active Spotify devices...</p>';
+      list.innerHTML = '<p class="text-xs text-slate-400 p-2">Searching devices...</p>';
 
       if (STATE.isLoggedIn) {
         const res = await spotifyApiRequest('/me/player/devices');
@@ -1161,39 +1086,37 @@
           list.innerHTML = '';
           res.devices.forEach(dev => {
             const item = document.createElement('div');
-            item.className = `p-3 rounded-xl glass-button flex items-center justify-between cursor-pointer ${dev.is_active ? 'border-spotify text-spotify' : 'text-white'}`;
+            item.className = `p-2.5 rounded-xl glass-button flex items-center justify-between cursor-pointer ${dev.is_active ? 'border-spotify text-spotify' : 'text-white'}`;
             item.innerHTML = `
               <div class="flex items-center gap-2">
-                <i class="ph ph-speaker-high text-lg"></i>
+                <i class="ph ph-speaker-high text-base"></i>
                 <div>
                   <p class="text-xs font-bold">${dev.name}</p>
-                  <p class="text-[10px] text-slate-400">${dev.type}</p>
+                  <p class="text-[9px] text-slate-400">${dev.type}</p>
                 </div>
               </div>
-              ${dev.is_active ? '<span class="text-[10px] font-bold bg-spotify/20 px-2 py-0.5 rounded-full">Active</span>' : ''}
+              ${dev.is_active ? '<span class="text-[9px] font-bold bg-spotify/20 px-2 py-0.5 rounded-full">Active</span>' : ''}
             `;
             item.onclick = async () => {
               await spotifyApiRequest('/me/player', 'PUT', { device_ids: [dev.id] });
               STATE.currentDevice = dev.name;
-              document.getElementById('current-device-name').innerText = dev.name;
               devicesModal.classList.add('hidden');
             };
             list.appendChild(item);
           });
         } else {
-          list.innerHTML = '<p class="text-xs text-slate-400 p-2">No active Spotify devices found. Open Spotify on your phone/desktop.</p>';
+          list.innerHTML = '<p class="text-xs text-slate-400 p-2">No active devices found. Open Spotify on your phone/PC.</p>';
         }
       } else {
         list.innerHTML = `
-          <div class="p-3 glass-button rounded-xl text-xs text-emerald-300 flex justify-between items-center">
-            <span>Demo Web Player</span>
-            <span class="text-[10px] bg-spotify/20 px-2 py-0.5 rounded-full">Active</span>
+          <div class="p-2.5 glass-button rounded-xl text-xs text-emerald-300 flex justify-between items-center">
+            <span>Demo Player</span>
+            <span class="text-[9px] bg-spotify/20 px-2 py-0.5 rounded-full">Active</span>
           </div>
         `;
       }
     }
 
-    /* --- Audio Visualizer Canvas --- */
     const canvas = document.getElementById('visualizer-canvas');
     const ctx = canvas ? canvas.getContext('2d') : null;
 
@@ -1211,18 +1134,18 @@
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       if (STATE.isPlaying) {
-        const bars = 28;
+        const bars = 24;
         const barWidth = canvas.width / bars;
         
         for (let i = 0; i < bars; i++) {
-          const height = Math.sin(visualizerAngle + i * 0.35) * 18 + Math.random() * 22 + 8;
+          const height = Math.sin(visualizerAngle + i * 0.35) * 14 + Math.random() * 18 + 6;
           const gradient = ctx.createLinearGradient(0, canvas.height, 0, 0);
           gradient.addColorStop(0, 'rgba(29, 185, 84, 0.85)');
           gradient.addColorStop(1, 'rgba(140, 82, 255, 0.95)');
 
           ctx.fillStyle = gradient;
           ctx.beginPath();
-          ctx.roundRect(i * barWidth + 2, canvas.height - height, barWidth - 4, height, [4, 4, 0, 0]);
+          ctx.roundRect(i * barWidth + 2, canvas.height - height, barWidth - 4, height, [3, 3, 0, 0]);
           ctx.fill();
         }
         visualizerAngle += 0.12;
@@ -1234,19 +1157,23 @@
       resizeCanvas();
       renderVisualizer();
       renderSearchHistory();
-
       extractColorsFromImage(albumArtEl);
 
       document.getElementById('redirect-uri-display').value = getRedirectUri();
-
       handleAuthCodeRedirect();
 
       playBtn.addEventListener('click', togglePlay);
       shuffleBtn.addEventListener('click', cycleShuffleMode);
       repeatBtn.addEventListener('click', cycleRepeatMode);
       likeBtn.addEventListener('click', toggleLike);
-      nextBtn.addEventListener('click', nextTrack);
-      prevBtn.addEventListener('click', prevTrack);
+      nextBtn.addEventListener('click', () => {
+        if (STATE.isLoggedIn) spotifyApiRequest('/me/player/next', 'POST');
+        else { STATE.currentTime = 0; updateTimeDisplay(); }
+      });
+      prevBtn.addEventListener('click', () => {
+        if (STATE.isLoggedIn) spotifyApiRequest('/me/player/previous', 'POST');
+        else { STATE.currentTime = 0; updateTimeDisplay(); }
+      });
       muteBtn.addEventListener('click', toggleMute);
 
       seekBar.addEventListener('input', (e) => {
@@ -1258,7 +1185,7 @@
       });
 
       volumeSlider.addEventListener('input', (e) => {
-        STATE.volume = parseInt(e.target.value);
+        STATE.volume = e.target.value;
         STATE.isMuted = (STATE.volume == 0);
         updateVolumeUI();
         if (STATE.isLoggedIn) {
@@ -1326,11 +1253,6 @@
         localStorage.removeItem('spotify_refresh_token');
         localStorage.removeItem('spotify_token_expires_at');
         location.reload();
-      };
-
-      document.getElementById('quick-device-pill').onclick = () => {
-        loadDevices();
-        devicesModal.classList.remove('hidden');
       };
 
       document.getElementById('devices-btn').onclick = () => {
